@@ -1,0 +1,60 @@
+{% extends "layouts/app.html" %}
+{% block title %}History{% endblock %}
+{% block topbar_title %}Patient history{% endblock %}
+{% block topbar_sub %}Longitudinal assessment timeline{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">Records</span>
+      <span class="chip chip-accent">Longitudinal</span>
+    </div>
+    <h1>Patient history</h1>
+    <p>Retrieve previous MRI assessments and observe risk movement over time.</p>
+  </div>
+</div>
+
+<form method="post" class="card" style="margin-bottom:1.25rem;">
+  <div style="display:grid;grid-template-columns:1fr auto;gap:.85rem;align-items:end;">
+    <div class="field" style="margin:0;">
+      <label for="patient_id">Patient ID</label>
+      <input class="control" id="patient_id" name="patient_id" value="{{ patient_id }}" required />
+    </div>
+    <button class="btn btn-primary" type="submit">Load history</button>
+  </div>
+</form>
+
+{% if rows %}
+{% if risk_vals|length > 1 %}
+<div class="card" style="margin-bottom:1.25rem;">
+  <h3 style="margin-bottom:.85rem;">Risk timeline</h3>
+  <div class="chart-box" style="height:220px;"><canvas id="histRisk"></canvas></div>
+</div>
+{% endif %}
+<div class="table-card">
+  <table class="premium">
+    <thead>
+      <tr>{% for key in rows[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>{% for key, val in row.items() %}<td title="{{ val }}">{{ val }}</td>{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif request.method == 'POST' %}
+<div class="empty"><div class="empty-ico">∅</div><h3>No assessments found</h3><p>No previous assessments for this patient.</p></div>
+{% else %}
+<div class="empty"><div class="empty-ico">◷</div><h3>Enter a patient ID</h3><p>Load history to review prior assessments.</p></div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if risk_vals|length > 1 %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  NLCharts.line("histRisk", {{ range(risk_vals|length)|list|tojson }}, {{ risk_vals|list|tojson }});
+});
+</script>
+{% endif %}
+{% endblock %}

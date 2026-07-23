@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ session.get('ui_theme', 'light') }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create account · NeuroLens</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}?v=3" />
+</head>
+<body>
+  <div class="auth-shell">
+    <section class="auth-brand-panel">
+      <div class="logo">
+        <span class="logo-mark">N</span>
+        <span>
+          <span class="logo-text" style="color:#fff;">NeuroLens</span>
+          <span class="logo-sub" style="color:#94a3b8;">Enterprise Clinical AI</span>
+        </span>
+      </div>
+      <div>
+        <span class="chip chip-dark">Get started in minutes</span>
+        <h1>Join the next generation of imaging review.</h1>
+        <p>Create your account once, then move through dashboards, assessments, and documentation with a modern clinical interface.</p>
+      </div>
+      <div class="text-sm" style="color:#64748b;">Accounts stored in your configured database</div>
+    </section>
+
+    <section class="auth-form-panel">
+      <div class="auth-box">
+        <span class="chip">Create account</span>
+        <h2 style="margin-top:.7rem;">Register</h2>
+        <p class="lead">Set up your NeuroLens credentials to continue.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="post">
+          <div class="field">
+            <label for="full_name">Full name</label>
+            <input class="control" id="full_name" name="full_name" placeholder="Dr. Jane Smith" required />
+          </div>
+          <div class="field">
+            <label for="email">Work email</label>
+            <input class="control" id="email" name="email" type="email" placeholder="you@clinic.org" required />
+          </div>
+          <div class="field">
+            <label for="username">Username</label>
+            <input class="control" id="username" name="username" placeholder="jsmith" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="password">Password</label>
+              <input class="control" id="password" name="password" type="password" required />
+            </div>
+            <div class="field">
+              <label for="confirm">Confirm</label>
+              <input class="control" id="confirm" name="confirm" type="password" required />
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Create account</button>
+        </form>
+
+        <div class="auth-footer">
+          Already registered? <a href="{{ url_for('web.login') }}">Sign in</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

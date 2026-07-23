@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Workspace{% endblock %} · NeuroLens</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">N</span>
+        <span>
+          <span class="brand-text">NeuroLens</span>
+          <span class="brand-sub">Clinical workspace</span>
+        </span>
+      </div>
+
+      <div class="nav-section">Overview</div>
+      <a class="nav-link {% if active == 'dashboard' %}active{% endif %}" href="{{ url_for('web.dashboard') }}">
+        <span class="nav-ico">◫</span> Dashboard
+      </a>
+
+      {% if session.get('role') == 'admin' %}
+      <div class="nav-section">Clinical workflow</div>
+      <a class="nav-link {% if active == 'patients' %}active{% endif %}" href="{{ url_for('web.patients') }}">
+        <span class="nav-ico">①</span> Patient registration
+      </a>
+      <a class="nav-link {% if active == 'mri' %}active{% endif %}" href="{{ url_for('web.mri') }}">
+        <span class="nav-ico">②</span> MRI prediction
+      </a>
+      <a class="nav-link {% if active == 'gradcam' %}active{% endif %}" href="{{ url_for('web.gradcam') }}">
+        <span class="nav-ico">③</span> Grad-CAM
+      </a>
+      <a class="nav-link {% if active == 'assess' %}active{% endif %}" href="{{ url_for('web.assessment') }}">
+        <span class="nav-ico">④</span> Clinical assessment
+      </a>
+      <a class="nav-link {% if active == 'report' %}active{% endif %}" href="{{ url_for('web.report') }}">
+        <span class="nav-ico">⑤</span> AI report
+      </a>
+      <a class="nav-link {% if active == 'history' %}active{% endif %}" href="{{ url_for('web.history') }}">
+        <span class="nav-ico">◷</span> Patient history
+      </a>
+      <div class="nav-section">Insights</div>
+      <a class="nav-link {% if active == 'analytics' %}active{% endif %}" href="{{ url_for('web.analytics') }}">
+        <span class="nav-ico">◈</span> Analytics
+      </a>
+      {% endif %}
+
+      <div class="nav-section">System</div>
+      <a class="nav-link {% if active == 'settings' %}active{% endif %}" href="{{ url_for('web.settings') }}">
+        <span class="nav-ico">⚙</span> Settings
+      </a>
+      <a class="nav-link {% if active == 'about' %}active{% endif %}" href="{{ url_for('web.about_app') }}">
+        <span class="nav-ico">ⓘ</span> About
+      </a>
+      <a class="nav-link {% if active == 'contact' %}active{% endif %}" href="{{ url_for('web.contact_app') }}">
+        <span class="nav-ico">✉</span> Contact
+      </a>
+
+      <div class="sidebar-user">
+        Signed in
+        <strong>{{ session.get('full_name') or session.get('username') or 'User' }}</strong>
+        Role · {{ session.get('role', 'user') }}
+        {% if session.get('active_patient_id') %}
+        <div class="small" style="margin-top:.35rem;">Patient · <span class="mono">{{ session.active_patient_id[:14] }}{% if session.active_patient_id|length > 14 %}…{% endif %}</span></div>
+        {% endif %}
+        <div class="sidebar-status"><i></i> Session active</div>
+        <a class="btn btn-secondary btn-sm btn-block" style="margin-top:.75rem;" href="{{ url_for('web.logout') }}">Sign out</a>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <button class="menu-toggle" id="menuToggle" type="button">Menu</button>
+          <div class="breadcrumb">{% block breadcrumb %}Workspace{% endblock %}</div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+          <span class="badge">{{ session.get('role', 'user')|capitalize }}</span>
+        </div>
+      </div>
+      <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}" data-auto-dismiss>{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

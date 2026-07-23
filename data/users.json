@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "6a4fa4783de01f9495f72097",
+    "full_name": "Test User",
+    "email": "testuser@example.com",
+    "username": "testuser",
+    "password_hash": "scrypt:32768:8:1$KUWILZqOh9a7oJsB$f21ea3ab8548e0b4409e8819eb8946e3acc9adc0114f932e4a1ddf7720e24377fba67e3051273fb8df122417ae14198e74992e51be8a3b6f14f40b49ad1f72df",
+    "role": "user",
+    "created_at": "2026-07-09T13:39:04.048000"
+  },
+  {
+    "_id": "6a4fa7f73de01f9495f72098",
+    "full_name": "hafil",
+    "email": "ssnsn@gmail.com",
+    "username": "hafil",
+    "password_hash": "scrypt:32768:8:1$QiPdofFTodHs2uBQ$946a10d4fc548e02aac60a97614b013506589b1a8e1cd6bcb9ae9d178a0151ce022b5e7f9a07489532327b6e9043dc14fefa69e05d46e4d9d1796d7a781a0efd",
+    "role": "user",
+    "created_at": "2026-07-09T13:53:59.076000"
+  }
+]

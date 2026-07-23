@@ -1,0 +1,138 @@
+{% extends "layouts/app.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block topbar_title %}Command center{% endblock %}
+{% block topbar_sub %}Live clinical intelligence overview{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">Overview</span>
+      <span class="chip chip-accent">Live insights</span>
+    </div>
+    <h1>Clinical dashboard</h1>
+    <p>Monitor prediction volume, stage mix, and risk movement across recent MRI assessments.</p>
+  </div>
+  {% if session.get('role') == 'admin' %}
+  <div class="flex gap-2" style="flex-wrap:wrap;">
+    <a class="btn btn-primary" href="{{ url_for('web.patients') }}">Start workflow</a>
+    <a class="btn btn-soft" href="{{ url_for('web.analytics') }}">Open analytics</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="grid-4" style="margin-bottom:1.25rem;">
+  <div class="kpi">
+    <div class="kpi-top">
+      <div class="kpi-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V8"/><path d="M17 16v-3"/></svg>
+      </div>
+    </div>
+    <div class="kpi-label">Assessments</div>
+    <div class="kpi-value">{{ total }}</div>
+    <div class="kpi-hint">Stored MRI predictions</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top">
+      <div class="kpi-ico indigo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      </div>
+    </div>
+    <div class="kpi-label">Stages observed</div>
+    <div class="kpi-value">{{ stages }}</div>
+    <div class="kpi-hint">Distinct impairment classes</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top">
+      <div class="kpi-ico amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+      </div>
+    </div>
+    <div class="kpi-label">Latest risk</div>
+    <div class="kpi-value">{{ latest_risk }}<span style="font-size:1rem;color:var(--muted);">/100</span></div>
+    <div class="kpi-hint">Most recent risk score</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-top">
+      <div class="kpi-ico rose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+    </div>
+    <div class="kpi-label">Session</div>
+    <div class="kpi-value" style="font-size:1.35rem;">{% if last_prediction %}Ready{% else %}Idle{% endif %}</div>
+    <div class="kpi-hint">Last prediction status</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:1rem;">
+      <div>
+        <h3 style="margin:0;">Stage distribution</h3>
+        <p class="text-sm mb-0">Counts by predicted impairment class</p>
+      </div>
+    </div>
+    {% if dist %}
+    <div class="chart-box"><canvas id="stageChart"></canvas></div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/></svg></div>
+      <h3>No assessments yet</h3>
+      <p>Stage distribution appears after the first MRI prediction is saved.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:1rem;">
+      <div>
+        <h3 style="margin:0;">Risk trend</h3>
+        <p class="text-sm mb-0">Recent risk scores over time</p>
+      </div>
+    </div>
+    {% if risk_vals %}
+    <div class="chart-box"><canvas id="riskChart"></canvas></div>
+    <div class="table-card mt-4">
+      <table class="premium">
+        <thead><tr><th>Stage</th><th>Risk</th><th>When</th></tr></thead>
+        <tbody>
+          {% for t in trend[:6] %}
+          <tr>
+            <td>{{ t.predicted_stage or '—' }}</td>
+            <td><span class="chip">{{ t.risk_score }}/100</span></td>
+            <td class="text-sm">{{ t.created_at or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg></div>
+      <h3>No risk history</h3>
+      <p>Risk history appears after assessments are completed.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  {% if dist %}
+  NLCharts.bar(
+    "stageChart",
+    {{ dist | map(attribute='stage') | list | tojson }},
+    {{ dist | map(attribute='count') | list | tojson }}
+  );
+  {% endif %}
+  {% if risk_vals %}
+  NLCharts.line(
+    "riskChart",
+    {{ range(risk_vals|length)|list|tojson }},
+    {{ risk_vals|list|tojson }}
+  );
+  {% endif %}
+});
+</script>
+{% endblock %}

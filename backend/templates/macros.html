@@ -1,0 +1,43 @@
+{% macro page_header(eyebrow, title, lead, badge=None) -%}
+<div class="page-header">
+  <div class="row">
+    <span class="eyebrow">{{ eyebrow }}</span>
+    {% if badge %}<span class="badge">{{ badge }}</span>{% endif %}
+  </div>
+  <h1>{{ title }}</h1>
+  <p>{{ lead }}</p>
+</div>
+{%- endmacro %}
+
+{% macro stepper(current) -%}
+<div class="stepper">
+  {% set steps = [(1,'Patient'),(2,'MRI'),(3,'Explain'),(4,'Assess'),(5,'Report')] %}
+  {% for num, label in steps %}
+    <div class="step {% if num < current %}done{% elif num == current %}active{% endif %}">
+      <span class="step-num">{% if num < current %}✓{% else %}{{ num }}{% endif %}</span>
+      {{ label }}
+    </div>
+    {% if not loop.last %}<div class="step-sep"></div>{% endif %}
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro result_strip(items) -%}
+<div class="result-strip">
+  {% for label, value in items %}
+  <div class="result-cell">
+    <div class="result-label">{{ label }}</div>
+    <div class="result-value">{{ value }}</div>
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro disclaimer(text) -%}
+<div class="disclaimer">
+  <div>
+    <strong>Clinical notice</strong>
+    <p>{{ text }}</p>
+  </div>
+</div>
+{%- endmacro %}

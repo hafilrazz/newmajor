@@ -1,0 +1,74 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import workflow, metrics %}
+{% block title %}AI report{% endblock %}
+{% block topbar_title %}AI-assisted report{% endblock %}
+{% block topbar_sub %}Workflow step 5 · Documentation{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">Documentation</span>
+      <span class="chip chip-accent">Step 5</span>
+    </div>
+    <h1>Clinical report studio</h1>
+    <p>Turn imaging results and clinician observations into a shareable patient report.</p>
+  </div>
+</div>
+{{ workflow(5) }}
+
+{% if not prediction %}
+<div class="empty">
+  <div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+  <h3>No prediction available</h3>
+  <p>Complete an MRI prediction first to create a report.</p>
+  <a class="btn btn-primary" href="{{ url_for('web.mri') }}">MRI prediction</a>
+</div>
+{% else %}
+{{ metrics([
+  ('Predicted stage', prediction.predicted_stage or 'Unavailable'),
+  ('Confidence', '%.1f%%'|format((prediction.confidence_score or 0) * 100)),
+  ('Risk score', (prediction.risk_score|string) + '/100')
+]) }}
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <h3 style="margin-bottom:1rem;">Report input</h3>
+  <form method="post">
+    <input type="hidden" name="action" value="generate" />
+    <div class="field">
+      <label for="patient_id">Patient ID</label>
+      <input class="control" id="patient_id" name="patient_id" value="{{ patient_id }}" required />
+    </div>
+    <div class="field">
+      <label for="clinician_notes">Clinician notes</label>
+      <textarea class="textarea" id="clinician_notes" name="clinician_notes">{{ default_notes }}</textarea>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit">Generate report</button>
+  </form>
+</div>
+
+{% if report_text or pdf_b64 %}
+<div class="card">
+  <div class="flex-between" style="margin-bottom:1rem;flex-wrap:wrap;">
+    <h3 style="margin:0;">Report preview</h3>
+    {% if report_id %}<span class="chip">ID · {{ report_id[:12] }}…</span>{% endif %}
+  </div>
+  {% if report_text %}
+  <textarea class="textarea" rows="12" readonly style="min-height:240px;background:#f8fafc;">{{ report_text }}</textarea>
+  {% endif %}
+  {% if pdf_b64 %}
+  <div class="panel-split mt-4">
+    <a class="btn btn-primary btn-block" download="alzheimer_report_{{ report_id or 'preview' }}.pdf" href="data:application/pdf;base64,{{ pdf_b64 }}">Download PDF</a>
+    <form method="post">
+      <input type="hidden" name="action" value="email" />
+      <div class="field" style="margin-bottom:.65rem;">
+        <label for="recipient_email">Email delivery</label>
+        <input class="control" id="recipient_email" name="recipient_email" type="email" value="{{ patient_email }}" />
+      </div>
+      <button class="btn btn-dark btn-block" type="submit">Email report</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

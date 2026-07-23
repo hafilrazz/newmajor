@@ -1,0 +1,46 @@
+{% macro page_hero(eyebrow, title, lead, badge=None) -%}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">{{ eyebrow }}</span>
+      {% if badge %}<span class="chip chip-accent">{{ badge }}</span>{% endif %}
+    </div>
+    <h1>{{ title }}</h1>
+    <p>{{ lead }}</p>
+  </div>
+  {% block hero_actions %}{% endblock %}
+</div>
+{%- endmacro %}
+
+{% macro workflow(current) -%}
+<div class="workflow">
+  {% set steps = [(1,'Patient'),(2,'MRI'),(3,'Explain'),(4,'Assess'),(5,'Report')] %}
+  {% for num, label in steps %}
+    <div class="wf-step {% if num < current %}done{% elif num == current %}on{% endif %}">
+      <span class="wf-num">{% if num < current %}✓{% else %}{{ num }}{% endif %}</span>
+      {{ label }}
+    </div>
+    {% if not loop.last %}<div class="wf-line"></div>{% endif %}
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro metrics(items) -%}
+<div class="metrics-row">
+  {% for label, value in items %}
+  <div class="metric-cell">
+    <div class="l">{{ label }}</div>
+    <div class="v">{{ value }}</div>
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro notice(text) -%}
+<div class="notice">
+  <div>
+    <strong>Clinical notice</strong>
+    <p>{{ text }}</p>
+  </div>
+</div>
+{%- endmacro %}

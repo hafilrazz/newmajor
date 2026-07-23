@@ -1,0 +1,68 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import workflow %}
+{% block title %}Patients{% endblock %}
+{% block topbar_title %}Patient registration{% endblock %}
+{% block topbar_sub %}Workflow step 1 · Create clinical identity{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">Patients</span>
+      <span class="chip chip-accent">Step 1</span>
+    </div>
+    <h1>Register patient</h1>
+    <p>Create a patient record before MRI assessment, explainability review, and reporting.</p>
+  </div>
+</div>
+{{ workflow(1) }}
+
+<div class="panel-split">
+  <div class="card">
+    <h3 style="margin-bottom:1.1rem;">Demographics</h3>
+    <form method="post">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input class="control" id="name" name="name" placeholder="Patient full name" required />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="age">Age</label>
+          <input class="control" id="age" name="age" type="number" min="0" max="120" value="65" required />
+        </div>
+        <div class="field">
+          <label for="gender">Gender</label>
+          <select class="select" id="gender" name="gender">
+            <option value="">Select…</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="email">Email address</label>
+        <input class="control" id="email" name="email" type="email" placeholder="patient@example.com" required />
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Create patient record</button>
+    </form>
+  </div>
+
+  <div class="stack">
+    <div class="card" style="background:linear-gradient(160deg,#fff,#f0fdfa);">
+      <span class="chip">Guidance</span>
+      <h3 style="margin-top:.85rem;">What happens next?</h3>
+      <p class="mb-0">A patient ID is generated and carried into MRI analysis, Grad-CAM review, and report delivery.</p>
+    </div>
+    <div class="card">
+      <span class="chip chip-accent">Checklist</span>
+      <div class="stack-sm" style="margin-top:1rem;">
+        <div class="flex-center"><span class="chip">1</span><strong>Register patient</strong></div>
+        <div class="flex-center"><span class="chip">2</span> Upload MRI &amp; predict</div>
+        <div class="flex-center"><span class="chip">3</span> Review Grad-CAM</div>
+        <div class="flex-center"><span class="chip">4</span> Clinical assessment</div>
+        <div class="flex-center"><span class="chip">5</span> Generate report</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

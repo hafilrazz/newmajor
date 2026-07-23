@@ -1,0 +1,57 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import workflow, metrics, notice %}
+{% block title %}Grad-CAM{% endblock %}
+{% block topbar_title %}Grad-CAM visualization{% endblock %}
+{% block topbar_sub %}Workflow step 3 · Model transparency{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">Explainability</span>
+      <span class="chip chip-accent">Step 3</span>
+    </div>
+    <h1>Attention evidence</h1>
+    <p>Review the Grad-CAM overlay for the latest MRI prediction with side-by-side comparison.</p>
+  </div>
+</div>
+{{ workflow(3) }}
+
+{% if not gradcam %}
+<div class="empty">
+  <div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg></div>
+  <h3>No explanation available yet</h3>
+  <p>Run an MRI prediction first to view an explanation overlay.</p>
+  <a class="btn btn-primary" href="{{ url_for('web.mri') }}">Go to MRI prediction</a>
+</div>
+{% else %}
+{{ metrics([
+  ('Predicted stage', prediction.predicted_stage or 'Unavailable'),
+  ('Confidence', '%.1f%%'|format((prediction.confidence_score or 0) * 100) if prediction.confidence_score is not none else '--'),
+  ('Risk score', ((prediction.risk_score|string) + '/100') if prediction.risk_score is not none else '--')
+]) }}
+
+<div class="panel-split">
+  {% if original %}
+  <div class="card">
+    <h3 style="margin-bottom:.85rem;">Source MRI</h3>
+    <div class="img-frame"><img src="data:image/png;base64,{{ original }}" alt="Source MRI" /></div>
+  </div>
+  {% endif %}
+  <div class="card">
+    <h3 style="margin-bottom:.85rem;">Grad-CAM overlay</h3>
+    <div class="img-frame"><img src="data:image/png;base64,{{ gradcam }}" alt="Grad-CAM" /></div>
+    <div class="legend-bar"></div>
+    <div class="legend-scale"><span>Low attention</span><span>High attention</span></div>
+  </div>
+</div>
+
+{% if prediction.explanation and prediction.explanation.narrative %}
+<div class="card mt-4" style="background:linear-gradient(135deg,#fff,#f0fdfa);">
+  <span class="chip">Narrative explanation</span>
+  <p style="margin:.9rem 0 0;line-height:1.75;">{{ prediction.explanation.narrative }}</p>
+</div>
+{% endif %}
+
+{{ notice("Grad-CAM visualizations support model review and are not a definitive map of pathology.") }}
+{% endif %}
+{% endblock %}

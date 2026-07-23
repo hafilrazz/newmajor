@@ -1,0 +1,140 @@
+{% extends "layouts/site.html" %}
+{% block title %}Enterprise MRI Intelligence{% endblock %}
+{% block content %}
+<section class="wrap-xl">
+  <div class="hero-premium">
+    <div class="hero-copy">
+      <span class="chip chip-dark">Clinical AI · Production-ready UI</span>
+      <h1>Intelligence that clinicians can trust.</h1>
+      <p>
+        NeuroLens is an enterprise-grade MRI intelligence platform for Alzheimer’s stage prediction,
+        visual explainability, and board-ready clinical reporting — designed like a modern product, not a prototype form.
+      </p>
+      <div class="hero-cta">
+        {% if session.get('authenticated') %}
+          <a class="btn btn-primary btn-lg" href="{{ url_for('web.dashboard') }}">
+            Open workspace
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        {% else %}
+          <a class="btn btn-primary btn-lg" href="{{ url_for('web.login') }}">
+            Launch platform
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <a class="btn btn-outline btn-lg" href="{{ url_for('web.register') }}">Create account</a>
+        {% endif %}
+      </div>
+      <div class="hero-meta">
+        <span class="chip chip-dark">4-class staging</span>
+        <span class="chip chip-dark">Grad-CAM XAI</span>
+        <span class="chip chip-dark">PDF + email delivery</span>
+        <span class="chip chip-dark">Longitudinal history</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="float-card">
+        <div class="label">Latest prediction</div>
+        <div class="value">Very Mild Impairment</div>
+        <div class="sub">Confidence 94.2% · Risk 25/100</div>
+      </div>
+      <div class="float-card">
+        <div class="label">Explainability</div>
+        <div class="value">Grad-CAM ready</div>
+        <div class="sub">Attention focus · faithfulness check</div>
+      </div>
+      <div class="float-card">
+        <div class="label">Report pipeline</div>
+        <div class="value">PDF generated</div>
+        <div class="sub">Clinician notes attached</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section" id="platform">
+  <div class="stats-band">
+    <div class="stat-item"><strong>4</strong><span>Impairment stages</span></div>
+    <div class="stat-item"><strong>XAI</strong><span>Grad-CAM overlays</span></div>
+    <div class="stat-item"><strong>PDF</strong><span>Clinical reporting</span></div>
+    <div class="stat-item"><strong>HIPAA*</strong><span>Workflow-minded design</span></div>
+  </div>
+
+  <div class="section-head">
+    <div>
+      <span class="chip">Platform</span>
+      <h2 style="margin-top:.7rem;">Everything a clinical team needs — in one surface</h2>
+    </div>
+    <p>From intake to explanation to documentation, NeuroLens removes tool-switching and keeps context on one patient journey.</p>
+  </div>
+
+  <div class="grid-3">
+    <article class="feature-tile">
+      <div class="feature-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"/><path d="M19 14c.5 2-1 5-7 5s-7.5-3-7-5"/></svg>
+      </div>
+      <h3>MRI stage intelligence</h3>
+      <p>Upload brain MRI slices and receive stage, confidence, and risk scores mapped for clinical review.</p>
+    </article>
+    <article class="feature-tile">
+      <div class="feature-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg>
+      </div>
+      <h3>Visual explainability</h3>
+      <p>Grad-CAM attention maps show what the model focused on — with narrative and faithfulness context.</p>
+    </article>
+    <article class="feature-tile">
+      <div class="feature-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      </div>
+      <h3>Enterprise reporting</h3>
+      <p>Generate clinician-ready PDFs, attach notes, and optionally deliver reports by email.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wrap section" id="workflow">
+  <div class="section-head">
+    <div>
+      <span class="chip chip-accent">Workflow</span>
+      <h2 style="margin-top:.7rem;">A five-step clinical pathway</h2>
+    </div>
+    <p>Structured like a modern operating system for cognitive care reviews.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card card-hover">
+      <div class="flex-center" style="margin-bottom:.8rem;"><span class="chip">01</span><strong>Register patient</strong></div>
+      <p class="mb-0">Create a durable patient record with demographics and contact for longitudinal follow-up.</p>
+    </div>
+    <div class="card card-hover">
+      <div class="flex-center" style="margin-bottom:.8rem;"><span class="chip">02</span><strong>Run MRI prediction</strong></div>
+      <p class="mb-0">Upload a validated brain MRI slice and receive stage probabilities instantly.</p>
+    </div>
+    <div class="card card-hover">
+      <div class="flex-center" style="margin-bottom:.8rem;"><span class="chip">03</span><strong>Review Grad-CAM</strong></div>
+      <p class="mb-0">Compare source imaging with attention overlays for transparent model inspection.</p>
+    </div>
+    <div class="card card-hover">
+      <div class="flex-center" style="margin-bottom:.8rem;"><span class="chip">04–05</span><strong>Assess & report</strong></div>
+      <p class="mb-0">Capture clinician notes and publish a PDF report ready for care-team distribution.</p>
+    </div>
+  </div>
+
+  <div class="cta-band mt-5">
+    <div>
+      <h2>Ready for a calmer clinical workspace?</h2>
+      <p>Sign in as admin to explore the full workflow, or create a standard account for overview access.</p>
+    </div>
+    <div class="flex gap-3" style="flex-wrap:wrap;">
+      <a class="btn btn-primary btn-lg" href="{{ url_for('web.login') }}">Sign in</a>
+      <a class="btn btn-outline btn-lg" href="{{ url_for('web.about') }}">Why NeuroLens</a>
+    </div>
+  </div>
+
+  <div class="notice">
+    <div>
+      <strong>Clinical notice</strong>
+      <p>NeuroLens is a decision-support prototype for education and research. It is not a diagnostic device and does not replace specialist judgment. *Compliance positioning depends on your deployment controls.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

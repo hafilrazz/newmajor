@@ -1,0 +1,102 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import workflow, metrics %}
+{% block title %}MRI prediction{% endblock %}
+{% block topbar_title %}MRI prediction{% endblock %}
+{% block topbar_sub %}Workflow step 2 · AI-assisted staging{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">Assessment</span>
+      <span class="chip chip-accent">Step 2</span>
+    </div>
+    <h1>MRI upload &amp; prediction</h1>
+    <p>Attach a scan to the active patient and run AI-assisted staging with visual explainability.</p>
+  </div>
+</div>
+{{ workflow(2) }}
+
+<form method="post" enctype="multipart/form-data">
+  <div class="panel-split">
+    <div class="card">
+      <h3 style="margin-bottom:.3rem;">Patient context</h3>
+      <p class="text-sm">Identify the record this assessment belongs to.</p>
+      <div class="field">
+        <label for="patient_id">Patient ID</label>
+        <input class="control" id="patient_id" name="patient_id" value="{{ patient_id }}" required />
+      </div>
+      <div class="field">
+        <label for="patient_email">Patient email</label>
+        <input class="control" id="patient_email" name="patient_email" type="email" value="{{ patient_email }}" required />
+      </div>
+      <div class="field">
+        <label for="clinical_notes">Clinical notes</label>
+        <textarea class="textarea" id="clinical_notes" name="clinical_notes" placeholder="Optional observations for reporting…"></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:.3rem;">MRI image</h3>
+      <p class="text-sm">PNG or JPEG exported 2D brain MRI slice.</p>
+      <div class="field">
+        <input type="file" name="mri_file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" data-preview-target="mriPreview" required />
+        <div class="hint">Only grayscale brain MRI slice exports are accepted.</div>
+      </div>
+      <div class="img-frame" style="background:#fff;">
+        <img id="mriPreview" hidden alt="MRI preview" style="max-height:280px;margin:0 auto;padding:.75rem;" />
+      </div>
+      <p id="mriPreviewMeta" class="text-sm mt-2" hidden></p>
+    </div>
+  </div>
+  <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">
+    Run prediction
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </button>
+</form>
+
+{% if result %}
+<hr class="divider" />
+<h3>Latest analysis</h3>
+<p class="text-sm">Model output for the most recent scan.</p>
+{{ metrics([
+  ('Predicted stage', result.predicted_stage or 'Unavailable'),
+  ('Confidence', '%.1f%%'|format((result.confidence_score or 0) * 100)),
+  ('Risk score', (result.risk_score|string) + '/100')
+]) }}
+
+{% if class_probs %}
+<div class="card" style="margin-bottom:1.25rem;">
+  <h3 style="margin-bottom:.9rem;">Class probabilities</h3>
+  {% for name, p in class_probs %}
+  <div class="prob">
+    <div class="prob-n">{{ name }}</div>
+    <div class="prob-t"><div class="prob-f" style="width:{{ (p * 100)|round(1) }}%;"></div></div>
+    <div class="prob-p">{{ '%.1f'|format(p * 100) }}%</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if result.gradcam_image_base64 %}
+<div class="panel-split">
+  <div class="card">
+    <h3 style="margin-bottom:.85rem;">Explainability preview</h3>
+    <div class="img-frame">
+      <img src="data:image/png;base64,{{ result.gradcam_image_base64 }}" alt="Grad-CAM" />
+    </div>
+  </div>
+  <div class="card" style="background:linear-gradient(160deg,#fff,#eef2ff);">
+    <span class="chip chip-accent">Next steps</span>
+    <h3 style="margin-top:.85rem;">Continue the pathway</h3>
+    <p>Open Grad-CAM for a larger view, add notes in Assessment, then publish an AI Report.</p>
+    <a class="btn btn-primary" href="{{ url_for('web.gradcam') }}">Open Grad-CAM</a>
+  </div>
+</div>
+{% endif %}
+{% else %}
+<div class="empty mt-5">
+  <div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"/></svg></div>
+  <h3>No prediction yet</h3>
+  <p>Register a patient, upload a brain MRI slice, then run prediction.</p>
+</div>
+{% endif %}
+{% endblock %}

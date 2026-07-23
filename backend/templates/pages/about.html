@@ -1,0 +1,35 @@
+{% extends "layouts/site.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<section class="wrap section" style="padding-top:2.5rem;">
+  <span class="chip">About NeuroLens</span>
+  <h1 style="margin-top:.8rem;font-size:clamp(2rem,3.5vw,2.8rem);max-width:16ch;">Built for clarity under clinical pressure.</h1>
+  <p style="max-width:620px;font-size:1.05rem;">NeuroLens organizes Alzheimer’s MRI AI outputs into a modern product experience — prediction, explanation, documentation — without the clutter of research tooling.</p>
+
+  <div class="grid-3 mt-5">
+    <article class="feature-tile">
+      <div class="feature-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"/></svg></div>
+      <h3>MRI staging</h3>
+      <p>Four impairment classes with confidence and risk scoring for structured review.</p>
+    </article>
+    <article class="feature-tile">
+      <div class="feature-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2"/></svg></div>
+      <h3>Explainability</h3>
+      <p>Grad-CAM overlays and narrative explanations for model transparency.</p>
+    </article>
+    <article class="feature-tile">
+      <div class="feature-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+      <h3>Reporting</h3>
+      <p>PDF generation and optional email delivery with clinician notes included.</p>
+    </article>
+  </div>
+
+  <div class="card mt-5" style="background:linear-gradient(135deg,#fff, #f0fdfa);">
+    <span class="chip">Design principles</span>
+    <p style="margin:.9rem 0 0;max-width:720px;line-height:1.75;font-size:1.02rem;">
+      We prioritize legibility, auditability, and calm visual hierarchy. Every screen is built for focused clinical sessions —
+      dense enough for experts, refined enough for stakeholders.
+    </p>
+  </div>
+</section>
+{% endblock %}

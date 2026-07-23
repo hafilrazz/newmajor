@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ session.get('ui_theme', 'light') }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in · NeuroLens</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}?v=3" />
+</head>
+<body>
+  <div class="auth-shell">
+    <section class="auth-brand-panel">
+      <div class="logo">
+        <span class="logo-mark">N</span>
+        <span>
+          <span class="logo-text" style="color:#fff;">NeuroLens</span>
+          <span class="logo-sub" style="color:#94a3b8;">Enterprise Clinical AI</span>
+        </span>
+      </div>
+      <div>
+        <span class="chip chip-dark">Secure clinical access</span>
+        <h1>Your command center for MRI intelligence.</h1>
+        <p>Predict stages, inspect Grad-CAM evidence, and publish reports without leaving one polished workspace.</p>
+        <ul class="auth-points">
+          <li><span>✓</span> Role-aware navigation for admins and users</li>
+          <li><span>✓</span> End-to-end patient workflow with audit-friendly history</li>
+          <li><span>✓</span> Explainable AI designed for clinical review sessions</li>
+        </ul>
+      </div>
+      <div class="text-sm" style="color:#64748b;">© NeuroLens · Research decision-support platform</div>
+    </section>
+
+    <section class="auth-form-panel">
+      <div class="auth-box">
+        <span class="chip">Welcome back</span>
+        <h2 style="margin-top:.7rem;">Sign in</h2>
+        <p class="lead">Access your NeuroLens workspace with secure credentials.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="post">
+          <div class="field">
+            <label for="username">Username</label>
+            <input class="control" id="username" name="username" placeholder="your.username" required autofocus />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input class="control" id="password" name="password" type="password" placeholder="••••••••" required />
+          </div>
+          <div class="auth-split">
+            <button class="btn btn-primary" type="submit" name="mode" value="user">User sign in</button>
+            <button class="btn btn-dark" type="submit" name="mode" value="admin">Admin sign in</button>
+          </div>
+        </form>
+
+        <div class="auth-footer">
+          New here? <a href="{{ url_for('web.register') }}">Create an account</a>
+        </div>
+        <div class="auth-footer" style="margin-top:.75rem;">
+          <a href="{{ url_for('web.home') }}">← Back to marketing site</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

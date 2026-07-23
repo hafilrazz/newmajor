@@ -1,0 +1,20 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import notice %}
+{% block title %}About{% endblock %}
+{% block topbar_title %}About{% endblock %}
+{% block topbar_sub %}Responsible imaging support{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <span class="chip">About</span>
+    <h1 style="margin-top:.6rem;">Responsible imaging support</h1>
+    <p>NeuroLens organizes AI outputs for clinical review with clarity and auditability.</p>
+  </div>
+</div>
+<div class="grid-3">
+  <article class="feature-tile"><div class="feature-ico">MRI</div><h3>MRI staging</h3><p>Stage + confidence from uploaded scans.</p></article>
+  <article class="feature-tile"><div class="feature-ico">XAI</div><h3>Explainability</h3><p>Grad-CAM attention for transparent review.</p></article>
+  <article class="feature-tile"><div class="feature-ico">DOC</div><h3>Reporting</h3><p>PDF documentation with clinician notes.</p></article>
+</div>
+{{ notice("This prototype supports clinical review and research workflows. It is not a diagnostic device.") }}
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import workflow %}
+{% block title %}Assessment{% endblock %}
+{% block topbar_title %}Clinical assessment{% endblock %}
+{% block topbar_sub %}Workflow step 4 · Clinician context{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
+      <span class="chip">Clinical context</span>
+      <span class="chip chip-accent">Step 4</span>
+    </div>
+    <h1>Assessment form</h1>
+    <p>Record clinician observations that will accompany the imaging result in the final report.</p>
+  </div>
+</div>
+{{ workflow(4) }}
+
+<div class="panel-split">
+  <div class="card">
+    <form method="post">
+      <div class="field">
+        <label for="patient_id">Patient ID</label>
+        <input class="control" id="patient_id" name="patient_id" value="{{ assessment.patient_id or patient_id }}" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="symptoms">Reported symptoms</label>
+          <textarea class="textarea" id="symptoms" name="symptoms">{{ assessment.symptoms or '' }}</textarea>
+        </div>
+        <div class="field">
+          <label for="additional_findings">Additional findings</label>
+          <textarea class="textarea" id="additional_findings" name="additional_findings">{{ assessment.additional_findings or '' }}</textarea>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="cognitive_decline">Cognitive decline (0–10)</label>
+          <input type="range" id="cognitive_decline" name="cognitive_decline" min="0" max="10"
+            value="{{ assessment.cognitive_decline if assessment.cognitive_decline is defined else 5 }}"
+            data-range-label="#cogVal" />
+          <div class="hint">Value: <strong id="cogVal">{{ assessment.cognitive_decline if assessment.cognitive_decline is defined else 5 }}</strong></div>
+        </div>
+        <div class="field">
+          <label for="functional_impairment">Functional impairment (0–10)</label>
+          <input type="range" id="functional_impairment" name="functional_impairment" min="0" max="10"
+            value="{{ assessment.functional_impairment if assessment.functional_impairment is defined else 5 }}"
+            data-range-label="#funVal" />
+          <div class="hint">Value: <strong id="funVal">{{ assessment.functional_impairment if assessment.functional_impairment is defined else 5 }}</strong></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Save assessment</button>
+    </form>
+  </div>
+  <div class="stack">
+    <div class="card" style="background:linear-gradient(160deg,#fff,#eef2ff);">
+      <span class="chip chip-accent">Documentation</span>
+      <h3 style="margin-top:.85rem;">How this is used</h3>
+      <p class="mb-0">Saved notes feed into the AI-assisted report so imaging and clinician context stay linked.</p>
+    </div>
+    {% if assessment %}
+    <div class="card">
+      <span class="chip chip-ok">Saved in session</span>
+      <p style="margin:.9rem 0 0;">
+        Cognitive decline: <strong>{{ assessment.cognitive_decline }}</strong><br />
+        Functional impairment: <strong>{{ assessment.functional_impairment }}</strong>
+      </p>
+      <a class="btn btn-soft btn-sm mt-3" href="{{ url_for('web.report') }}">Continue to report</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

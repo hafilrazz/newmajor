@@ -1,0 +1,86 @@
+{% extends "layouts/app.html" %}
+{% block title %}Settings{% endblock %}
+{% block topbar_title %}Settings{% endblock %}
+{% block topbar_sub %}Workspace preferences & connection{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div>
+    <span class="chip">Preferences</span>
+    <h1 style="margin-top:.6rem;">Settings</h1>
+    <p>Personalize appearance and review connection details for this workspace.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="flex-between" style="margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
+    <div>
+      <h3 style="margin:0;">Appearance</h3>
+      <p class="text-sm mb-0">Choose the theme that is comfortable for your reading environment.</p>
+    </div>
+    <span class="chip {% if ui_theme == 'dark' %}chip-accent{% endif %}">
+      Active · {{ ui_theme|capitalize }} mode
+    </span>
+  </div>
+
+  <div class="theme-grid">
+    <a
+      class="theme-option {% if ui_theme == 'light' %}active{% endif %}"
+      href="{{ url_for('web.set_theme', theme='light', next=url_for('web.settings')) }}"
+      aria-pressed="{{ 'true' if ui_theme == 'light' else 'false' }}"
+    >
+      <span class="theme-check">✓</span>
+      <div class="theme-preview light">
+        <div class="rail"></div>
+        <div class="pane">
+          <div class="chip-demo"></div>
+          <div class="bar"></div>
+          <div class="bar short"></div>
+        </div>
+      </div>
+      <div class="theme-meta">
+        <strong>Light clinical</strong>
+        <span>Soft neutrals and teal accents for bright clinical environments.</span>
+      </div>
+    </a>
+
+    <a
+      class="theme-option {% if ui_theme == 'dark' %}active{% endif %}"
+      href="{{ url_for('web.set_theme', theme='dark', next=url_for('web.settings')) }}"
+      aria-pressed="{{ 'true' if ui_theme == 'dark' else 'false' }}"
+    >
+      <span class="theme-check">✓</span>
+      <div class="theme-preview dark">
+        <div class="rail"></div>
+        <div class="pane">
+          <div class="chip-demo"></div>
+          <div class="bar"></div>
+          <div class="bar short"></div>
+        </div>
+      </div>
+      <div class="theme-meta">
+        <strong>Dark clinical</strong>
+        <span>Deep navy surfaces with teal highlights for low-light review sessions.</span>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <span class="chip">Backend</span>
+    <p class="text-sm" style="margin:.9rem 0 .3rem;">API + UI endpoint</p>
+    <strong style="font-size:1.1rem;font-family:var(--display);">http://localhost:5000</strong>
+    <p class="text-sm mt-3 mb-0">UI and JSON API are served from the same Flask application.</p>
+  </div>
+  <div class="card">
+    <span class="chip chip-accent">Session</span>
+    <p class="text-sm" style="margin:.9rem 0 .3rem;">Signed in as</p>
+    <strong style="font-size:1.1rem;font-family:var(--display);">{{ session.get('full_name') or session.get('username') or '—' }}</strong>
+    <p class="text-sm mt-2 mb-0">Role · {{ session.get('role', 'user') }} · Theme · {{ ui_theme }}</p>
+  </div>
+</div>
+<div class="card mt-4">
+  <h3>Platform stack</h3>
+  <p class="mb-0">Flask web UI · PyTorch MRI model · Grad-CAM explainability · MongoDB persistence</p>
+</div>
+{% endblock %}
