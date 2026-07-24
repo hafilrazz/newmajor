@@ -71,14 +71,14 @@
   <div class="card">
     <h3 style="margin-bottom:.85rem;">Explainability preview</h3>
     <div class="img-frame">
-      <img src="data:image/png;base64,{{ result.gradcam_image_base64 }}" alt="Grad-CAM" />
+      <img src="data:image/png;base64,{{ result.gradcam_image_base64 }}" alt="Grad-CAM++" />
     </div>
   </div>
   <div class="card" style="background:linear-gradient(160deg,#fff,#eef2ff);">
     <span class="chip chip-accent">Next steps</span>
     <h3 style="margin-top:.85rem;">Continue the pathway</h3>
-    <p>Open Grad-CAM for a larger view, add notes in Assessment, then publish an AI Report.</p>
-    <a class="btn btn-primary" href="{{ url_for('web.gradcam') }}">Open Grad-CAM</a>
+    <p>Open Grad-CAM++ for a larger view, add notes in Assessment, then publish an AI Report.</p>
+    <a class="btn btn-primary" href="{{ url_for('web.gradcam') }}">Open Grad-CAM++</a>
   </div>
 </div>
 {% endif %}

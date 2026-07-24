@@ -257,7 +257,7 @@ def explanation_block(explanation: Optional[dict]) -> None:
 
     section_title(
         "Model decision explanation",
-        "Faithful analysis of the Grad-CAM result.",
+        "Faithful analysis of the Grad-CAM++ result.",
     )
     if narrative:
         _html(

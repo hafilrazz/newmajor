@@ -67,7 +67,7 @@ def _do_predict():
             explanation = xai.get("explanation")
         except Exception:
             gradcam_b64 = ""
-        gradcam_error = "" if gradcam_b64 else "Grad-CAM generation returned no image."
+        gradcam_error = "" if gradcam_b64 else "Grad-CAM++ generation returned no image."
 
         if patient_id and not patient_email:
             try:

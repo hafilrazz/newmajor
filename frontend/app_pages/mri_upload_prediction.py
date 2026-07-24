@@ -205,14 +205,14 @@ def _render_result(result: Dict[str, Any]) -> None:
 
     gradcam_data = result.get("gradcam_image_base64", "") or ""
     if gradcam_data:
-        section_title("Explainability preview", "Grad-CAM attention overlay.")
+        section_title("Explainability preview", "Grad-CAM++ attention overlay.")
         g1, g2 = st.columns([1.15, 1], gap="large")
         with g1:
             try:
                 image_bytes = base64.b64decode(gradcam_data, validate=False)
                 st.image(
                     image_bytes,
-                    caption="Grad-CAM attention overlay",
+                    caption="Grad-CAM++ attention overlay",
                     use_container_width=True,
                 )
             except Exception:

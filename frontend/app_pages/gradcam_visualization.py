@@ -16,8 +16,8 @@ from frontend.ui.components import (
 def page_gradcam_visualization():
     page_header(
         "Explainability",
-        "Grad-CAM visualization",
-        "Review the attention overlay for the latest MRI prediction with side-by-side comparison.",
+        "Grad-CAM++ visualization",
+        "Review the refined attention overlay for the latest MRI prediction with side-by-side comparison.",
         badge="Model transparency",
     )
     workflow_stepper(3)
@@ -49,8 +49,9 @@ def page_gradcam_visualization():
     )
 
     section_title(
-        "Original vs. attention overlay",
-        "Warmer regions indicate stronger contribution to the predicted class.",
+        "Original vs. Grad-CAM++ overlay",
+        "Warmer regions indicate stronger contribution to the predicted class. "
+        "Grad-CAM++ sharpens multi-region localization over classic Grad-CAM.",
     )
 
     original = st.session_state.get("last_mri_image", "") or ""
@@ -65,13 +66,13 @@ def page_gradcam_visualization():
         with col_b:
             st.image(
                 base64.b64decode(gradcam_data),
-                caption="Grad-CAM overlay",
+                caption="Grad-CAM++ overlay",
                 use_container_width=True,
             )
     else:
         st.image(
             base64.b64decode(gradcam_data),
-            caption="Grad-CAM overlay",
+            caption="Grad-CAM++ overlay",
             use_container_width=True,
         )
 
@@ -90,5 +91,5 @@ def page_gradcam_visualization():
 
     explanation_block(predicted.get("explanation"))
     clinical_disclaimer(
-        "Grad-CAM visualizations support model review and are not a definitive map of pathology."
+        "Grad-CAM++ visualizations support model review and are not a definitive map of pathology."
     )

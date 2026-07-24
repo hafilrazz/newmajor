@@ -1,4 +1,4 @@
-"""Faithful, deterministic explanation of an actual Grad-CAM result.
+"""Faithful, deterministic explanation of an actual Grad-CAM++ result.
 
 Two grounded XAI techniques are applied to the CAM the model really produces:
 
@@ -9,7 +9,7 @@ Two grounded XAI techniques are applied to the CAM the model really produces:
 2. Deletion faithfulness — mask the top-attention region of the input, re-run
    the model, and measure how far the target-class confidence drops. A large
    drop means the highlighted region genuinely drove the prediction, so the
-   Grad-CAM explanation is trustworthy; a small drop flags a weak explanation.
+   Grad-CAM++ explanation is trustworthy; a small drop flags a weak explanation.
 
 The narrative is templated from these numbers with fixed rules, so it is fully
 reproducible and can never hallucinate.
@@ -255,7 +255,7 @@ def explain_prediction(
         faithfulness = compute_deletion_faithfulness(bundle)
         narrative = build_narrative(stage_name, regions, faithfulness)
         result["explanation"] = {
-            "method": "Grad-CAM + region attention analysis + deletion faithfulness",
+            "method": "Grad-CAM++ + region attention analysis + deletion faithfulness",
             "target_class": stage_name or None,
             "narrative": narrative,
             "regions": regions,

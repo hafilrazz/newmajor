@@ -1,7 +1,7 @@
 {% extends "layouts/app.html" %}
 {% from "components/ui.html" import workflow, metrics, notice %}
-{% block title %}Grad-CAM{% endblock %}
-{% block topbar_title %}Grad-CAM visualization{% endblock %}
+{% block title %}Grad-CAM++{% endblock %}
+{% block topbar_title %}Grad-CAM++ visualization{% endblock %}
 {% block topbar_sub %}Workflow step 3 · Model transparency{% endblock %}
 {% block content %}
 {{ workflow(3) }}
@@ -28,8 +28,8 @@
   </div>
   {% endif %}
   <div class="card">
-    <h3 style="margin-bottom:.85rem;">Grad-CAM overlay</h3>
-    <div class="img-frame"><img src="data:image/png;base64,{{ gradcam }}" alt="Grad-CAM" /></div>
+    <h3 style="margin-bottom:.85rem;">Grad-CAM++ overlay</h3>
+    <div class="img-frame"><img src="data:image/png;base64,{{ gradcam }}" alt="Grad-CAM++" /></div>
     <div class="legend-bar"></div>
     <div class="legend-scale"><span>Low attention</span><span>High attention</span></div>
   </div>
@@ -42,6 +42,6 @@
 </div>
 {% endif %}
 
-{{ notice("Grad-CAM visualizations support model review and are not a definitive map of pathology.") }}
+{{ notice("Grad-CAM++ visualizations support model review and are not a definitive map of pathology.") }}
 {% endif %}
 {% endblock %}
