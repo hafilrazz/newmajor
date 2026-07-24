@@ -4,16 +4,6 @@
 {% block topbar_title %}Grad-CAM visualization{% endblock %}
 {% block topbar_sub %}Workflow step 3 · Model transparency{% endblock %}
 {% block content %}
-<div class="page-hero">
-  <div>
-    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
-      <span class="chip">Explainability</span>
-      <span class="chip chip-accent">Step 3</span>
-    </div>
-    <h1>Attention evidence</h1>
-    <p>Review the Grad-CAM overlay for the latest MRI prediction with side-by-side comparison.</p>
-  </div>
-</div>
 {{ workflow(3) }}
 
 {% if not gradcam %}

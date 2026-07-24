@@ -1,7 +1,12 @@
-# NeuroLens — Flask UI + API (no Streamlit)
-# Usage: docker compose up --build
-# App:  http://localhost:5000
-# Mail: http://localhost:8025
+# NeuroLens — Volt-style Flask UI + API (no Streamlit)
+#
+#   docker compose up --build
+#   open http://localhost:5000
+#
+# Services:
+#   web     — Flask (Jinja Volt UI + /api/* + PyTorch)
+#   mongo   — patient / prediction storage
+#   mailpit — local SMTP + inbox for report emails
 
 services:
   mailpit:
@@ -9,8 +14,14 @@ services:
     container_name: neurolens-mailpit
     restart: unless-stopped
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8025/api/v1/info"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   mongo:
     image: mongo:7
@@ -27,11 +38,11 @@ services:
       retries: 5
       start_period: 20s
 
-  # Unified Flask application: premium HTML UI + REST API + ML
   web:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    image: neurolens-web:latest
     container_name: neurolens-web
     restart: unless-stopped
     depends_on:
@@ -40,7 +51,8 @@ services:
       mailpit:
         condition: service_started
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       FLASK_PORT: "5000"
       FLASK_DEBUG: "0"
@@ -48,9 +60,9 @@ services:
       FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-neurolens-docker-change-me}
       MODEL_PATH: /app/models/model.pth
       MONGODB_URI: mongodb://mongo:27017
-      MONGODB_DB: alzheimers
+      MONGODB_DB: ${MONGODB_DB:-alzheimers}
       CORS_ORIGINS: http://localhost:5000,http://127.0.0.1:5000
-      # Optional email via Mailpit (override in .env for real SMTP)
+      # Mailpit by default (override in .env for Gmail etc.)
       EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST:-mailpit}
       EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT:-1025}
       EMAIL_SMTP_USER: ${EMAIL_SMTP_USER:-}
@@ -61,22 +73,23 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      # Mount trained weights (read-only)
+      # Live model weights (read-only)
       - ./models:/app/models:ro
-      # Persist UI session cache + local data
-      - ./data:/app/data
+      # UI cache + local data
+      - neurolens_data:/app/data
     healthcheck:
       test:
         [
           "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3).read()",
+          "curl",
+          "-fsS",
+          "http://127.0.0.1:5000/health",
         ]
       interval: 30s
-      timeout: 5s
+      timeout: 8s
       retries: 3
-      start_period: 90s
+      start_period: 120s
 
 volumes:
   mongo_data:
+  neurolens_data:

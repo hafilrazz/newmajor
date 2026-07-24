@@ -3,18 +3,7 @@
 {% block topbar_title %}Patient history{% endblock %}
 {% block topbar_sub %}Longitudinal assessment timeline{% endblock %}
 {% block content %}
-<div class="page-hero">
-  <div>
-    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
-      <span class="chip">Records</span>
-      <span class="chip chip-accent">Longitudinal</span>
-    </div>
-    <h1>Patient history</h1>
-    <p>Retrieve previous MRI assessments and observe risk movement over time.</p>
-  </div>
-</div>
-
-<form method="post" class="card" style="margin-bottom:1.25rem;">
+<form method="post" class="v-card" style="margin-bottom:1.25rem;">
   <div style="display:grid;grid-template-columns:1fr auto;gap:.85rem;align-items:end;">
     <div class="field" style="margin:0;">
       <label for="patient_id">Patient ID</label>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create account · NeuroLens</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}?v=3" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/volt.css') }}?v=1" />
 </head>
 <body>
   <div class="auth-shell">
@@ -13,22 +13,22 @@
         <span class="logo-mark">N</span>
         <span>
           <span class="logo-text" style="color:#fff;">NeuroLens</span>
-          <span class="logo-sub" style="color:#94a3b8;">Enterprise Clinical AI</span>
+          <span class="logo-sub" style="color:#9ca3af;">Clinical MRI intelligence</span>
         </span>
       </div>
       <div>
-        <span class="chip chip-dark">Get started in minutes</span>
-        <h1>Join the next generation of imaging review.</h1>
-        <p>Create your account once, then move through dashboards, assessments, and documentation with a modern clinical interface.</p>
+        <span class="chip-dark">Get started</span>
+        <h1>Create your account.</h1>
+        <p>Register once, then access the full NeuroLens clinical workspace.</p>
       </div>
-      <div class="text-sm" style="color:#64748b;">Accounts stored in your configured database</div>
+      <div class="text-sm" style="color:#6b7280;">Accounts stored in your database</div>
     </section>
 
     <section class="auth-form-panel">
       <div class="auth-box">
-        <span class="chip">Create account</span>
-        <h2 style="margin-top:.7rem;">Register</h2>
-        <p class="lead">Set up your NeuroLens credentials to continue.</p>
+        <span class="chip">Register</span>
+        <h2 style="margin-top:.7rem;">Create account</h2>
+        <p class="lead">Fill in your details to continue.</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
@@ -41,15 +41,15 @@
         <form method="post">
           <div class="field">
             <label for="full_name">Full name</label>
-            <input class="control" id="full_name" name="full_name" placeholder="Dr. Jane Smith" required />
+            <input class="control" id="full_name" name="full_name" required />
           </div>
           <div class="field">
-            <label for="email">Work email</label>
-            <input class="control" id="email" name="email" type="email" placeholder="you@clinic.org" required />
+            <label for="email">Email</label>
+            <input class="control" id="email" name="email" type="email" required />
           </div>
           <div class="field">
             <label for="username">Username</label>
-            <input class="control" id="username" name="username" placeholder="jsmith" required />
+            <input class="control" id="username" name="username" required />
           </div>
           <div class="field-row">
             <div class="field">

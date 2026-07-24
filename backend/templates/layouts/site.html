@@ -3,34 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}NeuroLens{% endblock %} · Enterprise MRI Intelligence</title>
-  <meta name="description" content="NeuroLens — enterprise clinical MRI intelligence for Alzheimer’s stage prediction, explainability, and reporting." />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}?v=4" />
+  <title>{% block title %}NeuroLens{% endblock %} · Clinical MRI Intelligence</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/volt.css') }}?v=1" />
   {% block head %}{% endblock %}
 </head>
 <body class="site-body">
   <header class="site-nav">
-    <div class="wrap site-nav-inner">
+    <div class="site-nav-inner">
       <a class="logo" href="{{ url_for('web.home') }}">
         <span class="logo-mark">N</span>
         <span>
           <span class="logo-text">NeuroLens</span>
-          <span class="logo-sub">Enterprise Clinical AI</span>
+          <span class="logo-sub">Volt-style clinical platform</span>
         </span>
       </a>
       <nav class="site-links">
         <a href="{{ url_for('web.home') }}#platform">Platform</a>
-        <a href="{{ url_for('web.home') }}#workflow">Workflow</a>
         <a href="{{ url_for('web.about') }}">About</a>
         <a href="{{ url_for('web.contact') }}">Contact</a>
       </nav>
       <div class="site-actions">
         {% if session.get('authenticated') %}
-          <a class="btn btn-soft btn-sm" href="{{ url_for('web.dashboard') }}">Workspace</a>
+          <a class="btn btn-soft btn-sm" href="{{ url_for('web.dashboard') }}">Dashboard</a>
           <a class="btn btn-ghost btn-sm" href="{{ url_for('web.logout') }}">Sign out</a>
         {% else %}
           <a class="btn btn-ghost btn-sm" href="{{ url_for('web.login') }}">Sign in</a>
-          <a class="btn btn-primary btn-sm" href="{{ url_for('web.register') }}">Start free</a>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('web.register') }}">Get started</a>
         {% endif %}
       </div>
     </div>
@@ -38,7 +36,7 @@
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    <div class="wrap" style="margin-top:1rem;">
+    <div class="section" style="padding-top:1rem;padding-bottom:0;">
       {% for category, message in messages %}
         <div class="alert alert-{{ category }}" data-auto-dismiss>{{ message }}</div>
       {% endfor %}
@@ -49,18 +47,18 @@
   {% block content %}{% endblock %}
 
   <footer class="site-footer">
-    <div class="wrap site-footer-inner">
+    <div class="site-footer-inner">
       <div class="logo">
-        <span class="logo-mark" style="width:36px;height:36px;border-radius:11px;font-size:.9rem;">N</span>
+        <span class="logo-mark" style="width:34px;height:34px;border-radius:10px;font-size:.85rem;">N</span>
         <span>
-          <span class="logo-text" style="font-size:1rem;">NeuroLens</span>
-          <span class="logo-sub">Clinical decision support</span>
+          <span class="logo-text" style="font-size:.95rem;">NeuroLens</span>
+          <span class="logo-sub">Decision support prototype</span>
         </span>
       </div>
-      <div>© {{ year }} NeuroLens · Research prototype · Not a diagnostic device</div>
+      <div>© {{ year }} NeuroLens · Not a diagnostic device</div>
     </div>
   </footer>
-  <script src="{{ url_for('static', filename='js/premium.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/premium.js') }}?v=5"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

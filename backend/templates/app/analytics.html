@@ -3,19 +3,8 @@
 {% block topbar_title %}Population analytics{% endblock %}
 {% block topbar_sub %}Stage mix and risk patterns{% endblock %}
 {% block content %}
-<div class="page-hero">
-  <div>
-    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
-      <span class="chip">Insights</span>
-      <span class="chip chip-accent">Population</span>
-    </div>
-    <h1>Analytics studio</h1>
-    <p>Explore disease stage distribution and recent risk patterns across assessments.</p>
-  </div>
-</div>
-
 <div class="grid-2">
-  <div class="card">
+  <div class="v-card">
     <h3 style="margin-bottom:.35rem;">Stage distribution</h3>
     <p class="text-sm">Aggregate counts by predicted stage</p>
     {% if dist %}
@@ -34,7 +23,7 @@
     <div class="empty"><h3>No stage data</h3><p>No stage data available yet.</p></div>
     {% endif %}
   </div>
-  <div class="card">
+  <div class="v-card">
     <h3 style="margin-bottom:.35rem;">Risk trend</h3>
     <p class="text-sm">Latest stored risk observations</p>
     {% if risk_vals %}

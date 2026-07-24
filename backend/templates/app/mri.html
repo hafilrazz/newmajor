@@ -4,16 +4,6 @@
 {% block topbar_title %}MRI prediction{% endblock %}
 {% block topbar_sub %}Workflow step 2 · AI-assisted staging{% endblock %}
 {% block content %}
-<div class="page-hero">
-  <div>
-    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
-      <span class="chip">Assessment</span>
-      <span class="chip chip-accent">Step 2</span>
-    </div>
-    <h1>MRI upload &amp; prediction</h1>
-    <p>Attach a scan to the active patient and run AI-assisted staging with visual explainability.</p>
-  </div>
-</div>
 {{ workflow(2) }}
 
 <form method="post" enctype="multipart/form-data">

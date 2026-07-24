@@ -8,11 +8,10 @@ env
 __pycache__
 **/__pycache__
 *.py[cod]
+*.pyo
 .pytest_cache
 .mypy_cache
 *.log
-*.md
-!README.md
 agent-tools
 terminals
 mcps
@@ -22,5 +21,9 @@ frontend
 !.env.example
 docker-compose.override.yml
 data/ui_cache
+**/home_brain_wallpaper.jpg
+backend/static/img/volt-reference.png
 **/.DS_Store
 Thumbs.db
+*.md
+!README.md

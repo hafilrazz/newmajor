@@ -4,16 +4,6 @@
 {% block topbar_title %}AI-assisted report{% endblock %}
 {% block topbar_sub %}Workflow step 5 · Documentation{% endblock %}
 {% block content %}
-<div class="page-hero">
-  <div>
-    <div class="flex-center gap-2" style="margin-bottom:.55rem;">
-      <span class="chip">Documentation</span>
-      <span class="chip chip-accent">Step 5</span>
-    </div>
-    <h1>Clinical report studio</h1>
-    <p>Turn imaging results and clinician observations into a shareable patient report.</p>
-  </div>
-</div>
 {{ workflow(5) }}
 
 {% if not prediction %}

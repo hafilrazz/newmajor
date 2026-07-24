@@ -1,9 +1,5 @@
-# NeuroLens — Flask Volt UI + REST API + PyTorch MRI model
-# Build from repo root:
-#   docker build -f backend/Dockerfile -t neurolens-web .
-# Or:
-#   docker compose up --build
-
+# Convenience root Dockerfile — same image as backend/Dockerfile
+# Build: docker build -t neurolens-web .
 FROM python:3.11-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -11,7 +7,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONPATH=/app \
-    # Default runtime (compose / env overrides these)
     FLASK_PORT=5000 \
     FLASK_DEBUG=0 \
     FLASK_USE_RELOADER=0 \
@@ -23,7 +18,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System libs for Pillow / numpy / torch CPU runtime
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
@@ -33,19 +27,13 @@ RUN apt-get update \
         libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps first (better layer caching)
 COPY backend/requirements.txt /app/requirements.txt
 RUN python -m pip install --upgrade pip \
     && pip install -r /app/requirements.txt
 
-# App package: routes, services, Volt UI (templates + static/css/volt.css)
 COPY backend /app/backend
-
-# Trained weights (compose also bind-mounts ./models for updates without rebuild)
 COPY models /app/models
 
-# Writable dirs for session image cache + local fallbacks
-# (runs as root so compose volume mounts work reliably on Windows/Linux)
 RUN mkdir -p /app/data/ui_cache /app/data
 
 EXPOSE 5000
@@ -53,7 +41,6 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=8s --start-period=120s --retries=3 \
     CMD curl -fsS http://127.0.0.1:5000/health >/dev/null || exit 1
 
-# One worker: model is loaded in-process; longer timeout for MRI inference
 CMD ["gunicorn", \
      "--bind", "0.0.0.0:5000", \
      "--workers", "1", \

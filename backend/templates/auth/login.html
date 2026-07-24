@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign in · NeuroLens</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}?v=3" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/volt.css') }}?v=1" />
 </head>
 <body>
   <div class="auth-shell">
@@ -13,27 +13,27 @@
         <span class="logo-mark">N</span>
         <span>
           <span class="logo-text" style="color:#fff;">NeuroLens</span>
-          <span class="logo-sub" style="color:#94a3b8;">Enterprise Clinical AI</span>
+          <span class="logo-sub" style="color:#9ca3af;">Clinical MRI intelligence</span>
         </span>
       </div>
       <div>
-        <span class="chip chip-dark">Secure clinical access</span>
-        <h1>Your command center for MRI intelligence.</h1>
-        <p>Predict stages, inspect Grad-CAM evidence, and publish reports without leaving one polished workspace.</p>
+        <span class="chip-dark">Secure access</span>
+        <h1>Sign in to your clinical workspace.</h1>
+        <p>Volt-style dashboard for MRI staging, Grad-CAM explainability, and reporting.</p>
         <ul class="auth-points">
-          <li><span>✓</span> Role-aware navigation for admins and users</li>
-          <li><span>✓</span> End-to-end patient workflow with audit-friendly history</li>
-          <li><span>✓</span> Explainable AI designed for clinical review sessions</li>
+          <li><span>✓</span> Soft admin UI inspired by modern dashboards</li>
+          <li><span>✓</span> Full clinical workflow in one place</li>
+          <li><span>✓</span> Light and dark theme support</li>
         </ul>
       </div>
-      <div class="text-sm" style="color:#64748b;">© NeuroLens · Research decision-support platform</div>
+      <div class="text-sm" style="color:#6b7280;">© NeuroLens</div>
     </section>
 
     <section class="auth-form-panel">
       <div class="auth-box">
         <span class="chip">Welcome back</span>
         <h2 style="margin-top:.7rem;">Sign in</h2>
-        <p class="lead">Access your NeuroLens workspace with secure credentials.</p>
+        <p class="lead">Enter your credentials to continue.</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
@@ -62,7 +62,7 @@
           New here? <a href="{{ url_for('web.register') }}">Create an account</a>
         </div>
         <div class="auth-footer" style="margin-top:.75rem;">
-          <a href="{{ url_for('web.home') }}">← Back to marketing site</a>
+          <a href="{{ url_for('web.home') }}">← Back to home</a>
         </div>
       </div>
     </section>

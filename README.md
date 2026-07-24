@@ -35,20 +35,26 @@ Open **http://127.0.0.1:5000**
 
 ## Run (Docker)
 
-Requires `models/model.pth` on the host.
+Requires `models/model.pth` on the host. Serves the **Volt-style Flask UI + API** on one port.
 
 ```powershell
 cd C:\newmajor
-copy .env.example .env   # first time only; edit secrets as needed
+copy .env.example .env   # optional; edit secrets as needed
 docker compose up --build
 ```
 
 | Service | URL |
 |---------|-----|
-| **NeuroLens app (UI + API)** | http://localhost:5000 |
+| **NeuroLens app (Volt UI + API)** | http://localhost:5000 |
 | MongoDB | localhost:27017 |
 | Mailpit (test email UI) | http://localhost:8025 |
 | Mailpit SMTP | localhost:1025 |
+
+Rebuild only the app after UI changes:
+
+```powershell
+docker compose up --build web
+```
 
 Stop:
 
@@ -58,11 +64,17 @@ docker compose down
 
 ### Docker layout
 
-- **`web`** — Flask app (`backend/Dockerfile`): Jinja UI, `/api/*`, PyTorch inference  
-- **`mongo`** — patient / prediction storage  
-- **`mailpit`** — optional local SMTP for report emails  
+| File | Purpose |
+|------|---------|
+| `backend/Dockerfile` | Production image (Flask Volt UI + API + model) |
+| `Dockerfile` | Same image, buildable from repo root |
+| `docker-compose.yml` | `web` + `mongo` + `mailpit` |
 
-The old Streamlit frontend container is **removed**; everything is served from port **5000**.
+- **`web`** — gunicorn on port 5000 (`backend.wsgi:app`)  
+- **`mongo`** — patient / prediction storage  
+- **`mailpit`** — local SMTP for AI report emails  
+
+Streamlit is **not** used. Everything is on **port 5000**.
 
 ## Layout
 
