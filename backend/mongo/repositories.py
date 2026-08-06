@@ -73,6 +73,15 @@ class PatientRepository:
             return None
         return (doc.get("email") or "").strip() or None
 
+    def get_patient(self, patient_id: str) -> Optional[Dict[str, Any]]:
+        """Return a patient document (JSON-safe) or None."""
+        try:
+            oid = ObjectId(patient_id)
+        except Exception:
+            return None
+        doc = self.patients.find_one({"_id": oid})
+        return self._jsonify(doc) if doc else None
+
     def get_prediction_history(self, patient_id: str) -> List[Dict[str, Any]]:
         cursor = self.predictions.find({"patient_id": patient_id}).sort("created_at", -1)
         out: List[Dict[str, Any]] = []
@@ -111,6 +120,7 @@ class PatientRepository:
         report_text: str,
         pdf_base64: str,
         clinician_notes: str = "",
+        report_id: Optional[str] = None,
     ) -> str:
         doc = {
             "patient_id": patient_id,
@@ -120,6 +130,11 @@ class PatientRepository:
             "clinician_notes": clinician_notes,
             "created_at": _utcnow(),
         }
+        if report_id:
+            try:
+                doc["_id"] = ObjectId(report_id)
+            except Exception:
+                pass
         res = self.reports.insert_one(doc)
         return str(res.inserted_id)
 

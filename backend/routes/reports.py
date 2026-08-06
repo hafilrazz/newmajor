@@ -27,22 +27,47 @@ def generate_report():
     predicted_stage = prediction.get("predicted_stage", "Unknown")
     confidence = float(prediction.get("confidence_score", 0.0))
     risk = int(prediction.get("risk_score", 0))
+    gradcam_b64 = prediction.get("gradcam_image_base64", "") or ""
+
+    repo = _repo()
+
+    # Pre-generate the report id so it can be printed inside the PDF itself,
+    # and enrich the document with patient demographics when available.
+    report_id = str(ObjectId())
+    patient = repo.get_patient(patient_id) or {}
 
     report_text = generate_ai_report_text(
         predicted_stage=predicted_stage,
         confidence_score=confidence,
         risk_score=risk,
         clinician_notes=clinician_notes,
+        patient_name=patient.get("name", ""),
+        patient_age=patient.get("age"),
+        patient_gender=patient.get("gender", ""),
+        patient_id=patient_id,
     )
-    pdf_b64 = generate_pdf_base64(report_text=report_text, patient_id=patient_id, predicted_stage=predicted_stage)
 
-    repo = _repo()
+    pdf_b64 = generate_pdf_base64(
+        report_text=report_text,
+        patient_id=patient_id,
+        predicted_stage=predicted_stage,
+        confidence_score=confidence,
+        risk_score=risk,
+        clinician_notes=clinician_notes,
+        patient_name=patient.get("name", ""),
+        patient_age=patient.get("age"),
+        patient_gender=patient.get("gender", ""),
+        report_id=report_id,
+        gradcam_base64=gradcam_b64,
+    )
+
     report_id = repo.save_report(
         patient_id=patient_id,
         prediction_id=prediction.get("prediction_id"),
         report_text=report_text,
         pdf_base64=pdf_b64,
         clinician_notes=clinician_notes,
+        report_id=report_id,
     )
 
     return jsonify({"report_id": report_id, "report_text": report_text, "pdf_base64": pdf_b64})
