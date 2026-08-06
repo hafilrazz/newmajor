@@ -14,13 +14,13 @@ def page_contact():
     with email:
         contact_card(
             "Email support",
-            "support@example.com",
+            "neurolenscompany@gmail.com",
             "For product access, account help, and technical questions.",
         )
     with phone:
         contact_card(
             "Telephone",
-            "+1 (000) 000-0000",
+            "+91 63646 17730",
             "For urgent operational support during business hours.",
         )
 
@@ -36,4 +36,4 @@ def page_contact():
         """,
         unsafe_allow_html=True,
     )
-    st.caption("Replace these demonstration contact details before deploying the platform.")
+    st.caption("demonstration contact details.")
