@@ -523,31 +523,53 @@ def report():
                 flash("Patient ID is required.", "error")
             else:
                 try:
+                    from bson import ObjectId
                     from backend.mongo.client import get_mongo
                     from backend.mongo.repositories import PatientRepository
                     from backend.services.report_generator import generate_ai_report_text
                     from backend.services.pdf_generator import generate_pdf_base64
 
+                    stage = prediction.get("predicted_stage", "Unknown")
+                    confidence = float(prediction.get("confidence_score") or 0)
+                    risk = int(prediction.get("risk_score") or 0)
+                    gradcam_b64 = prediction.get("gradcam_image_base64", "") or ""
+
+                    _, db = get_mongo()
+                    repo = PatientRepository(db)
+                    report_id = str(ObjectId())
+                    patient = repo.get_patient(patient_id) or {}
+
                     report_text = generate_ai_report_text(
-                        predicted_stage=prediction.get("predicted_stage", "Unknown"),
-                        confidence_score=float(
-                            prediction.get("confidence_score") or 0
-                        ),
-                        risk_score=int(prediction.get("risk_score") or 0),
+                        predicted_stage=stage,
+                        confidence_score=confidence,
+                        risk_score=risk,
                         clinician_notes=notes,
+                        patient_name=patient.get("name", ""),
+                        patient_age=patient.get("age"),
+                        patient_gender=patient.get("gender", ""),
+                        patient_id=patient_id,
                     )
+
                     pdf_b64 = generate_pdf_base64(
                         report_text=report_text,
                         patient_id=patient_id,
-                        predicted_stage=prediction.get("predicted_stage", "Unknown"),
+                        predicted_stage=stage,
+                        confidence_score=confidence,
+                        risk_score=risk,
+                        clinician_notes=notes,
+                        patient_name=patient.get("name", ""),
+                        patient_age=patient.get("age"),
+                        patient_gender=patient.get("gender", ""),
+                        report_id=report_id,
+                        gradcam_base64=gradcam_b64,
                     )
-                    _, db = get_mongo()
-                    report_id = PatientRepository(db).save_report(
+                    report_id = repo.save_report(
                         patient_id=patient_id,
                         prediction_id=prediction.get("prediction_id"),
                         report_text=report_text,
                         pdf_base64=pdf_b64,
                         clinician_notes=notes,
+                        report_id=report_id,
                     )
                     ui_cache.save_report(report_id, report_text, pdf_b64)
                     flash("Report prepared successfully.", "success")
