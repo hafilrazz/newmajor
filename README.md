@@ -18,10 +18,17 @@ Professional **Flask-only** Alzheimer’s MRI workspace with a **premium enterpr
 - Patient history & population analytics
 - PDF download + optional email
 
-## Run (local)
+## installation and Run (local)
 
 ```powershell
 cd C:\newmajor
+
+py -3.13 -m venv .venv                                                                       
+>> .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+>> .\.venv\Scripts\python.exe -m pip install -r frontend\requirements.txt
+
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& c:\newmajor\.venv\Scripts\Activate.ps1)
+
 .\run_app.bat
 ```
 
