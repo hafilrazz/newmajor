@@ -24,8 +24,8 @@ Professional **Flask-only** Alzheimer’s MRI workspace with a **premium enterpr
 cd C:\newmajor
 
 py -3.13 -m venv .venv                                                                       
->> .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
->> .\.venv\Scripts\python.exe -m pip install -r frontend\requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r frontend\requirements.txt
 
 (Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& c:\newmajor\.venv\Scripts\Activate.ps1)
 
