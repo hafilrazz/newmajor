@@ -16,5 +16,23 @@
     "password_hash": "scrypt:32768:8:1$QiPdofFTodHs2uBQ$946a10d4fc548e02aac60a97614b013506589b1a8e1cd6bcb9ae9d178a0151ce022b5e7f9a07489532327b6e9043dc14fefa69e05d46e4d9d1796d7a781a0efd",
     "role": "user",
     "created_at": "2026-07-09T13:53:59.076000"
+  },
+  {
+    "_id": "6a757d95116660f9264cf5aa",
+    "full_name": "kishan",
+    "email": "kishan@gmail.com",
+    "username": "kishank",
+    "password_hash": "scrypt:32768:8:1$REB03WOSQUBPa17O$5acc2e851909ff444c80bd03e784c5100ec1fcf3552799c6f6b6931992e9f8383ab3612ea83e41b7b75529545fb1a67f18c676b28a8d758a2bf2092487c3c1b5",
+    "role": "user",
+    "created_at": "2026-08-07T06:39:17.551000"
+  },
+  {
+    "_id": "6a757e23116660f9264cf5ab",
+    "full_name": "ammu",
+    "email": "ammu123@gmail.com",
+    "username": "ammu123",
+    "password_hash": "scrypt:32768:8:1$LznMJfs5IWsznK75$ea149efed8f4b5cd20de88c3a101ac415012075fd4a4aca15509c4dd084f045cf1db733ba6b5c1129b81ce9e67271a007151153c2b0facc86cb6a92e22f2f149",
+    "role": "user",
+    "created_at": "2026-08-07T06:41:39.256000"
   }
 ]

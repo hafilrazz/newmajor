@@ -387,7 +387,7 @@ def mri():
                     }
                     session["active_patient_id"] = patient_id
                     session["active_patient_email"] = patient_email
-                    ui_cache.save_prediction(payload)
+                    ui_cache.save_prediction(payload, modality="mri")
                     ui_cache.save_mri_image(mri_b64)
                     flash("Analysis complete.", "success")
                     return redirect(url_for("web.mri"))
@@ -399,7 +399,7 @@ def mri():
     # Prefill
     patient_id = session.get("active_patient_id", "")
     patient_email = session.get("active_patient_email", "")
-    result = ui_cache.load_prediction()
+    result = ui_cache.load_prediction(modality="mri")
     class_probs = []
     if result:
         names = result.get("class_names") or []
@@ -419,16 +419,223 @@ def mri():
     )
 
 
+@bp.route("/app/ct", methods=["GET", "POST"])
+@admin_required
+def ct():
+    if request.method == "POST":
+        patient_id = (request.form.get("patient_id") or "").strip()
+        patient_email = (request.form.get("patient_email") or "").strip()
+        clinical_notes = (request.form.get("clinical_notes") or "").strip()
+        file = request.files.get("ct_file") or request.files.get("mri_file")
+
+        if not file or not file.filename:
+            flash("Please upload a CT scan image.", "error")
+        elif not patient_id:
+            flash("Patient ID is required.", "error")
+        elif not patient_email or "@" not in patient_email:
+            flash("A valid patient email is required.", "error")
+        else:
+            try:
+                from backend.services.ct_predictor import predict_ct_stage_and_scores
+
+                file.stream.seek(0)
+                img = Image.open(file.stream).convert("RGB")
+
+                pred = predict_ct_stage_and_scores(img)
+                gradcam_b64 = pred.get("gradcam_image_base64", "") or ""
+
+                file.stream.seek(0)
+                raw = file.read()
+                ct_b64 = base64.b64encode(raw).decode("utf-8")
+
+                prediction_id = None
+                try:
+                    from backend.mongo.client import get_mongo
+                    from backend.mongo.repositories import PatientRepository
+
+                    _, db = get_mongo()
+                    risk_for_db = float(pred["risk_score"])
+                    prediction_id = PatientRepository(db).upsert_prediction_history(
+                        patient_id=patient_id,
+                        patient_email=patient_email,
+                        predicted_stage=pred["predicted_stage"],
+                        confidence_score=float(pred["confidence_score"]),
+                        risk_score=int(round(risk_for_db)),
+                        gradcam_image_base64=gradcam_b64,
+                        clinical_notes=clinical_notes,
+                        modality="ct",
+                        extra_data={"base_models": pred.get("base_models")},
+                    )
+                except Exception:
+                    prediction_id = None
+
+                payload = {
+                    "patient_id": patient_id,
+                    "patient_email": patient_email,
+                    "prediction_id": prediction_id,
+                    "predicted_stage": pred.get("predicted_stage"),
+                    "confidence_score": pred.get("confidence_score"),
+                    "risk_score": pred.get("risk_score"),
+                    "raw_probs": pred.get("raw_probs") or [],
+                    "class_names": pred.get("class_names") or [
+                        "Mild Impairment",
+                        "Moderate Impairment",
+                        "No Impairment",
+                        "Very Mild Impairment",
+                    ],
+                    "base_models": pred.get("base_models"),
+                    "gradcam_image_base64": gradcam_b64,
+                    "meta": {
+                        "modality": "ct",
+                        "history_saved": bool(prediction_id),
+                        "gradcam_available": bool(gradcam_b64),
+                    },
+                }
+                session["active_patient_id"] = patient_id
+                session["active_patient_email"] = patient_email
+                ui_cache.save_prediction(payload, modality="ct")
+                ui_cache.save_ct_image(ct_b64)
+                flash("CT analysis complete.", "success")
+                return redirect(url_for("web.ct"))
+            except Exception as err:
+                flash(f"CT Prediction failed: {err}", "error")
+
+    # Prefill
+    patient_id = session.get("active_patient_id", "")
+    patient_email = session.get("active_patient_email", "")
+    result = ui_cache.load_prediction("ct")
+    class_probs = []
+    if result:
+        names = result.get("class_names") or []
+        probs = result.get("raw_probs") or []
+        class_probs = sorted(
+            zip(names, probs), key=lambda x: float(x[1]), reverse=True
+        )
+
+    return render_template(
+        "app/ct.html",
+        active="ct",
+        patient_id=patient_id,
+        patient_email=patient_email,
+        result=result,
+        class_probs=class_probs,
+        **_ctx(),
+    )
+
+
+@bp.route("/app/clinical", methods=["GET", "POST"])
+@admin_required
+def clinical():
+    form_values = {}
+    clinical_notes = ""
+    if request.method == "POST":
+        patient_id = (request.form.get("patient_id") or "").strip()
+        patient_email = (request.form.get("patient_email") or "").strip()
+        clinical_notes = (request.form.get("clinical_notes") or "").strip()
+        raw_form = request.form.to_dict()
+        form_values = dict(raw_form)
+
+        if not patient_id:
+            flash("Patient ID is required.", "error")
+        elif not patient_email or "@" not in patient_email:
+            flash("A valid patient email is required.", "error")
+        else:
+            try:
+                from backend.services.clinical_predictor import (
+                    predict_clinical_alzheimer,
+                )
+
+                pred = predict_clinical_alzheimer(raw_form)
+
+                prediction_id = None
+                try:
+                    from backend.mongo.client import get_mongo
+                    from backend.mongo.repositories import PatientRepository
+
+                    _, db = get_mongo()
+                    risk_for_db = float(pred["risk_score"])
+                    prediction_id = PatientRepository(db).upsert_prediction_history(
+                        patient_id=patient_id,
+                        patient_email=patient_email,
+                        predicted_stage=pred["predicted_stage"],
+                        confidence_score=float(pred["confidence_score"]),
+                        risk_score=int(round(risk_for_db)),
+                        gradcam_image_base64="",
+                        clinical_notes=clinical_notes,
+                        modality="clinical",
+                        extra_data={
+                            "risk_tier": pred.get("risk_tier"),
+                            "base_models": pred.get("base_models"),
+                            "risk_factors": pred.get("risk_factors"),
+                        },
+                    )
+                except Exception:
+                    prediction_id = None
+
+                payload = {
+                    "patient_id": patient_id,
+                    "patient_email": patient_email,
+                    "prediction_id": prediction_id,
+                    "predicted_stage": pred.get("predicted_stage"),
+                    "predicted_index": pred.get("predicted_index"),
+                    "confidence_score": pred.get("confidence_score"),
+                    "risk_score": pred.get("risk_score"),
+                    "risk_tier": pred.get("risk_tier"),
+                    "risk_color": pred.get("risk_color"),
+                    "raw_probs": pred.get("raw_probs") or [],
+                    "class_names": pred.get("class_names"),
+                    "base_models": pred.get("base_models"),
+                    "risk_factors": pred.get("risk_factors"),
+                    "clean_features": pred.get("clean_features"),
+                    "meta": {
+                        "modality": "clinical",
+                        "history_saved": bool(prediction_id),
+                    },
+                }
+                session["active_patient_id"] = patient_id
+                session["active_patient_email"] = patient_email
+                ui_cache.save_prediction(payload, modality="clinical")
+                flash("Clinical assessment complete.", "success")
+                return redirect(url_for("web.clinical"))
+            except Exception as err:
+                flash(f"Clinical Assessment failed: {err}", "error")
+
+    # Prefill
+    patient_id = session.get("active_patient_id", "")
+    patient_email = session.get("active_patient_email", "")
+    result = ui_cache.load_prediction("clinical")
+    if result and not form_values and result.get("clean_features"):
+        form_values = result.get("clean_features", {})
+
+    return render_template(
+        "app/clinical.html",
+        active="clinical",
+        patient_id=patient_id,
+        patient_email=patient_email,
+        clinical_notes=clinical_notes,
+        form_values=form_values,
+        result=result,
+        **_ctx(),
+    )
+
+
 @bp.get("/app/gradcam")
 @admin_required
 def gradcam():
-    prediction = ui_cache.load_prediction() or {}
+    modality = request.args.get("modality")
+    if not modality:
+        modality = "ct" if session.get("last_prediction_ct") and not session.get("last_prediction_mri") else "mri"
+
+    prediction = ui_cache.load_prediction(modality) or {}
+    original = ui_cache.load_scan_image(modality)
+
     return render_template(
         "app/gradcam.html",
         active="gradcam",
+        modality=modality,
         prediction=prediction,
         gradcam=prediction.get("gradcam_image_base64") or "",
-        original=ui_cache.load_mri_image(),
+        original=original,
         **_ctx(),
     )
 

@@ -4,14 +4,26 @@
 {% block topbar_title %}Grad-CAM++ visualization{% endblock %}
 {% block topbar_sub %}Workflow step 3 · Model transparency{% endblock %}
 {% block content %}
-{{ workflow(3) }}
+
+<div style="display:flex;gap:.5rem;margin-bottom:1.25rem;">
+  <a class="btn btn-sm {% if modality == 'mri' or not modality %}btn-primary{% else %}btn-secondary{% endif %}" href="{{ url_for('web.gradcam', modality='mri') }}">
+    MRI Grad-CAM++
+  </a>
+  <a class="btn btn-sm {% if modality == 'ct' %}btn-primary{% else %}btn-secondary{% endif %}" href="{{ url_for('web.gradcam', modality='ct') }}">
+    CT Grad-CAM
+  </a>
+</div>
 
 {% if not gradcam %}
 <div class="empty">
   <div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg></div>
-  <h3>No explanation available yet</h3>
-  <p>Run an MRI prediction first to view an explanation overlay.</p>
+  <h3>No {{ modality|upper }} explanation available yet</h3>
+  <p>Run a {{ modality|upper }} prediction first to view an explanation overlay.</p>
+  {% if modality == 'ct' %}
+  <a class="btn btn-primary" href="{{ url_for('web.ct') }}">Go to CT prediction</a>
+  {% else %}
   <a class="btn btn-primary" href="{{ url_for('web.mri') }}">Go to MRI prediction</a>
+  {% endif %}
 </div>
 {% else %}
 {{ metrics([

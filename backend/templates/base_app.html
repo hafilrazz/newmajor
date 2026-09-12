@@ -31,6 +31,12 @@
       <a class="nav-link {% if active == 'mri' %}active{% endif %}" href="{{ url_for('web.mri') }}">
         <span class="nav-ico">②</span> MRI prediction
       </a>
+      <a class="nav-link {% if active == 'ct' %}active{% endif %}" href="{{ url_for('web.ct') }}">
+        <span class="nav-ico">③</span> CT prediction
+      </a>
+      <a class="nav-link {% if active == 'clinical' %}active{% endif %}" href="{{ url_for('web.clinical') }}">
+        <span class="nav-ico">④</span> Clinical analysis
+      </a>
       <a class="nav-link {% if active == 'gradcam' %}active{% endif %}" href="{{ url_for('web.gradcam') }}">
         <span class="nav-ico">③</span> Grad-CAM
       </a>

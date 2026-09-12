@@ -14,3 +14,6 @@ numpy==2.5.1
 reportlab==5.0.0
 yagmail==0.16.0
 gunicorn==26.0.0
+scikit-learn>=1.5.0
+joblib>=1.4.0
+xgboost>=2.1.0

@@ -1,0 +1,428 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import metrics %}
+{% block title %}Clinical Analysis{% endblock %}
+{% block topbar_title %}Clinical feature analysis{% endblock %}
+{% block topbar_sub %}Clinical Stacking Ensemble · Random Forest + XGBoost (Soft Average){% endblock %}
+{% block content %}
+
+<div class="card mb-4" style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(59,130,246,0.04));border-color:rgba(16,185,129,0.25);">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+    <div>
+      <span class="badge" style="background:#059669;color:#fff;margin-bottom:.4rem;">Multi-Modal Modality 3</span>
+      <h3 style="margin:0.2rem 0;font-size:1.15rem;">Independent Tabular Clinical Assessment</h3>
+      <p class="text-sm" style="margin:0;color:var(--text-muted);">
+        Comprehensive diagnostic risk evaluation using 32 clinical, lifestyle, and cognitive biomarkers.
+      </p>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" type="button" onclick="loadSamplePreset('healthy')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        Load Healthy Sample
+      </button>
+      <button class="btn btn-secondary btn-sm" type="button" onclick="loadSamplePreset('impaired')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Load High-Risk Sample
+      </button>
+    </div>
+  </div>
+</div>
+
+<form method="post" id="clinicalForm">
+  <!-- Patient Context -->
+  <div class="card mb-4">
+    <h3 style="margin-bottom:.4rem;">1. Patient context</h3>
+    <div class="panel-split">
+      <div class="field">
+        <label for="patient_id">Patient ID</label>
+        <input class="control" id="patient_id" name="patient_id" value="{{ patient_id }}" required />
+      </div>
+      <div class="field">
+        <label for="patient_email">Patient email</label>
+        <input class="control" id="patient_email" name="patient_email" type="email" value="{{ patient_email }}" required />
+      </div>
+    </div>
+    <div class="field mt-2">
+      <label for="clinical_notes">Clinical observations & notes</label>
+      <textarea class="textarea" id="clinical_notes" name="clinical_notes" placeholder="Optional notes for reporting…">{{ clinical_notes }}</textarea>
+    </div>
+  </div>
+
+  <!-- Clinical Features Grid -->
+  <div class="card mb-4">
+    <h3 style="margin-bottom:.3rem;">2. Cognitive & functional scores</h3>
+    <p class="text-sm mb-3">Primary indicators with the highest diagnostic weighting in Random Forest and XGBoost.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1rem;">
+      <div class="field">
+        <label for="MMSE">MMSE Score (0–30) <small style="color:var(--text-muted);">&lt;24 indicates decline</small></label>
+        <input class="control" type="number" step="0.5" id="MMSE" name="MMSE" value="{{ form_values.get('MMSE', 27.0) }}" min="0" max="30" required />
+      </div>
+      <div class="field">
+        <label for="FunctionalAssessment">Functional Assessment (0–10)</label>
+        <input class="control" type="number" step="0.5" id="FunctionalAssessment" name="FunctionalAssessment" value="{{ form_values.get('FunctionalAssessment', 8.0) }}" min="0" max="10" required />
+      </div>
+      <div class="field">
+        <label for="ADL">Activities of Daily Living (ADL, 0–10)</label>
+        <input class="control" type="number" step="0.5" id="ADL" name="ADL" value="{{ form_values.get('ADL', 8.5) }}" min="0" max="10" required />
+      </div>
+      <div class="field">
+        <label for="MemoryComplaints">Subjective Memory Complaints</label>
+        <select class="control" id="MemoryComplaints" name="MemoryComplaints">
+          <option value="0" {% if form_values.get('MemoryComplaints', 0) == 0 %}selected{% endif %}>No Complaints</option>
+          <option value="1" {% if form_values.get('MemoryComplaints', 0) == 1 %}selected{% endif %}>Complaints Present</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="BehavioralProblems">Behavioral Problems</label>
+        <select class="control" id="BehavioralProblems" name="BehavioralProblems">
+          <option value="0" {% if form_values.get('BehavioralProblems', 0) == 0 %}selected{% endif %}>Absent</option>
+          <option value="1" {% if form_values.get('BehavioralProblems', 0) == 1 %}selected{% endif %}>Present</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="Confusion">Confusion Episodes</label>
+        <select class="control" id="Confusion" name="Confusion">
+          <option value="0" {% if form_values.get('Confusion', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('Confusion', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="Disorientation">Disorientation</label>
+        <select class="control" id="Disorientation" name="Disorientation">
+          <option value="0" {% if form_values.get('Disorientation', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('Disorientation', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="PersonalityChanges">Personality Changes</label>
+        <select class="control" id="PersonalityChanges" name="PersonalityChanges">
+          <option value="0" {% if form_values.get('PersonalityChanges', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('PersonalityChanges', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="DifficultyCompletingTasks">Task Completion Difficulty</label>
+        <select class="control" id="DifficultyCompletingTasks" name="DifficultyCompletingTasks">
+          <option value="0" {% if form_values.get('DifficultyCompletingTasks', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('DifficultyCompletingTasks', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="Forgetfulness">Marked Forgetfulness</label>
+        <select class="control" id="Forgetfulness" name="Forgetfulness">
+          <option value="0" {% if form_values.get('Forgetfulness', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('Forgetfulness', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demographics & Lifestyle -->
+  <div class="card mb-4">
+    <h3 style="margin-bottom:.3rem;">3. Demographics & lifestyle factors</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1rem;">
+      <div class="field">
+        <label for="Age">Age (years)</label>
+        <input class="control" type="number" id="Age" name="Age" value="{{ form_values.get('Age', 72) }}" min="60" max="90" required />
+      </div>
+      <div class="field">
+        <label for="Gender">Gender</label>
+        <select class="control" id="Gender" name="Gender">
+          <option value="0" {% if form_values.get('Gender', 0) == 0 %}selected{% endif %}>Male</option>
+          <option value="1" {% if form_values.get('Gender', 0) == 1 %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="Ethnicity">Ethnicity</label>
+        <select class="control" id="Ethnicity" name="Ethnicity">
+          <option value="0" {% if form_values.get('Ethnicity', 0) == 0 %}selected{% endif %}>Caucasian</option>
+          <option value="1" {% if form_values.get('Ethnicity', 0) == 1 %}selected{% endif %}>African American</option>
+          <option value="2" {% if form_values.get('Ethnicity', 0) == 2 %}selected{% endif %}>Asian</option>
+          <option value="3" {% if form_values.get('Ethnicity', 0) == 3 %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="EducationLevel">Education Level</label>
+        <select class="control" id="EducationLevel" name="EducationLevel">
+          <option value="0" {% if form_values.get('EducationLevel', 2) == 0 %}selected{% endif %}>None</option>
+          <option value="1" {% if form_values.get('EducationLevel', 2) == 1 %}selected{% endif %}>High School</option>
+          <option value="2" {% if form_values.get('EducationLevel', 2) == 2 %}selected{% endif %}>Bachelor's</option>
+          <option value="3" {% if form_values.get('EducationLevel', 2) == 3 %}selected{% endif %}>Higher Degree</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="BMI">BMI (kg/m²)</label>
+        <input class="control" type="number" step="0.1" id="BMI" name="BMI" value="{{ form_values.get('BMI', 24.5) }}" min="15" max="40" required />
+      </div>
+      <div class="field">
+        <label for="Smoking">Smoking Status</label>
+        <select class="control" id="Smoking" name="Smoking">
+          <option value="0" {% if form_values.get('Smoking', 0) == 0 %}selected{% endif %}>Non-Smoker</option>
+          <option value="1" {% if form_values.get('Smoking', 0) == 1 %}selected{% endif %}>Smoker</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="AlcoholConsumption">Alcohol (units/week)</label>
+        <input class="control" type="number" step="0.5" id="AlcoholConsumption" name="AlcoholConsumption" value="{{ form_values.get('AlcoholConsumption', 2.0) }}" min="0" max="20" required />
+      </div>
+      <div class="field">
+        <label for="PhysicalActivity">Physical Activity (hrs/week)</label>
+        <input class="control" type="number" step="0.5" id="PhysicalActivity" name="PhysicalActivity" value="{{ form_values.get('PhysicalActivity', 5.0) }}" min="0" max="10" required />
+      </div>
+      <div class="field">
+        <label for="DietQuality">Diet Quality Score (0–10)</label>
+        <input class="control" type="number" step="0.5" id="DietQuality" name="DietQuality" value="{{ form_values.get('DietQuality', 6.5) }}" min="0" max="10" required />
+      </div>
+      <div class="field">
+        <label for="SleepQuality">Sleep Quality Score (4–10)</label>
+        <input class="control" type="number" step="0.5" id="SleepQuality" name="SleepQuality" value="{{ form_values.get('SleepQuality', 7.0) }}" min="4" max="10" required />
+      </div>
+    </div>
+  </div>
+
+  <!-- Medical History, Vitals & Labs -->
+  <div class="card mb-4">
+    <h3 style="margin-bottom:.3rem;">4. Medical history, vitals & biomarkers</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1rem;">
+      <div class="field">
+        <label for="FamilyHistoryAlzheimers">Family History of Alzheimer's</label>
+        <select class="control" id="FamilyHistoryAlzheimers" name="FamilyHistoryAlzheimers">
+          <option value="0" {% if form_values.get('FamilyHistoryAlzheimers', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('FamilyHistoryAlzheimers', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="CardiovascularDisease">Cardiovascular Disease</label>
+        <select class="control" id="CardiovascularDisease" name="CardiovascularDisease">
+          <option value="0" {% if form_values.get('CardiovascularDisease', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('CardiovascularDisease', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="Diabetes">Diabetes</label>
+        <select class="control" id="Diabetes" name="Diabetes">
+          <option value="0" {% if form_values.get('Diabetes', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('Diabetes', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="Depression">Depression History</label>
+        <select class="control" id="Depression" name="Depression">
+          <option value="0" {% if form_values.get('Depression', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('Depression', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="HeadInjury">Head Injury</label>
+        <select class="control" id="HeadInjury" name="HeadInjury">
+          <option value="0" {% if form_values.get('HeadInjury', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('HeadInjury', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="Hypertension">Hypertension</label>
+        <select class="control" id="Hypertension" name="Hypertension">
+          <option value="0" {% if form_values.get('Hypertension', 0) == 0 %}selected{% endif %}>No</option>
+          <option value="1" {% if form_values.get('Hypertension', 0) == 1 %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="SystolicBP">Systolic BP (mmHg)</label>
+        <input class="control" type="number" id="SystolicBP" name="SystolicBP" value="{{ form_values.get('SystolicBP', 125) }}" min="90" max="180" required />
+      </div>
+      <div class="field">
+        <label for="DiastolicBP">Diastolic BP (mmHg)</label>
+        <input class="control" type="number" id="DiastolicBP" name="DiastolicBP" value="{{ form_values.get('DiastolicBP', 80) }}" min="60" max="120" required />
+      </div>
+      <div class="field">
+        <label for="CholesterolTotal">Total Cholesterol (mg/dL)</label>
+        <input class="control" type="number" step="1" id="CholesterolTotal" name="CholesterolTotal" value="{{ form_values.get('CholesterolTotal', 200.0) }}" min="150" max="300" required />
+      </div>
+      <div class="field">
+        <label for="CholesterolLDL">LDL Cholesterol (mg/dL)</label>
+        <input class="control" type="number" step="1" id="CholesterolLDL" name="CholesterolLDL" value="{{ form_values.get('CholesterolLDL', 110.0) }}" min="50" max="200" required />
+      </div>
+      <div class="field">
+        <label for="CholesterolHDL">HDL Cholesterol (mg/dL)</label>
+        <input class="control" type="number" step="1" id="CholesterolHDL" name="CholesterolHDL" value="{{ form_values.get('CholesterolHDL', 55.0) }}" min="20" max="100" required />
+      </div>
+      <div class="field">
+        <label for="CholesterolTriglycerides">Triglycerides (mg/dL)</label>
+        <input class="control" type="number" step="1" id="CholesterolTriglycerides" name="CholesterolTriglycerides" value="{{ form_values.get('CholesterolTriglycerides', 150.0) }}" min="100" max="400" required />
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">
+    Run Clinical Stacking Ensemble Assessment
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </button>
+</form>
+
+{% if result %}
+<hr class="divider" />
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+  <div>
+    <h3>Clinical Ensemble Staging Assessment</h3>
+    <p class="text-sm">Consensus from Random Forest (10 features) and XGBoost (32 features).</p>
+  </div>
+  <span class="badge" style="background:#059669;color:#fff;">Clinical Modality</span>
+</div>
+
+<!-- Primary Assessment Banner -->
+<div class="card mb-4" style="background:{% if result.predicted_stage == 'Alzheimer' %}#fef2f2;border-color:#fca5a5;{% else %}#f0fdf4;border-color:#86efac;{% endif %}">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <span class="badge" style="background:{% if result.predicted_stage == 'Alzheimer' %}#dc2626{% else %}#16a34a{% endif %};color:#fff;">
+        {{ result.risk_tier }}
+      </span>
+      <h2 style="margin:.4rem 0 .2rem 0;color:{% if result.predicted_stage == 'Alzheimer' %}#991b1b{% else %}#166534{% endif %};">
+        {{ result.predicted_stage }}
+      </h2>
+      <p style="margin:0;color:var(--text-muted);">
+        {% if result.predicted_stage == 'Alzheimer' %}
+        High probability of Alzheimer's clinical profile. Recommend follow-up neurological exam.
+        {% else %}
+        Normal / low-risk profile based on cognitive biomarkers and vitals.
+        {% endif %}
+      </p>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:2.25rem;font-weight:700;color:{% if result.predicted_stage == 'Alzheimer' %}#dc2626{% else %}#16a34a{% endif %};">
+        {{ result.risk_score }}%
+      </div>
+      <div class="text-sm" style="color:var(--text-muted);">Alzheimer Risk Probability</div>
+    </div>
+  </div>
+</div>
+
+<!-- Base Models Comparison -->
+{% if result.base_models %}
+<div class="card mb-4" style="background:#f8fafc;border-color:#e2e8f0;">
+  <h4 style="margin-bottom:.75rem;font-size:1rem;">Base Classifier Consensus</h4>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;">
+    {% if result.base_models.random_forest %}
+    <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #e2e8f0;">
+      <span class="badge" style="background:#0284c7;color:#fff;">Model 1</span>
+      <h5 style="margin:.4rem 0 .2rem 0;font-size:.95rem;">Random Forest (10 Features)</h5>
+      <div style="font-weight:600;color:#1e293b;">{{ result.base_models.random_forest.predicted_stage }}</div>
+      <div class="text-sm" style="color:#64748b;">
+        Confidence: {{ '%.1f'|format((result.base_models.random_forest.confidence or 0) * 100) }}%
+      </div>
+      <div class="text-sm" style="color:#94a3b8;margin-top:.2rem;">
+        P(Alzheimer): {{ '%.1f'|format(result.base_models.random_forest.probs[1] * 100) }}%
+      </div>
+    </div>
+    {% endif %}
+
+    {% if result.base_models.xgboost %}
+    <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #e2e8f0;">
+      <span class="badge" style="background:#7c3aed;color:#fff;">Model 2</span>
+      <h5 style="margin:.4rem 0 .2rem 0;font-size:.95rem;">XGBoost (32 Features)</h5>
+      <div style="font-weight:600;color:#1e293b;">{{ result.base_models.xgboost.predicted_stage }}</div>
+      <div class="text-sm" style="color:#64748b;">
+        Confidence: {{ '%.1f'|format((result.base_models.xgboost.confidence or 0) * 100) }}%
+      </div>
+      <div class="text-sm" style="color:#94a3b8;margin-top:.2rem;">
+        P(Alzheimer): {{ '%.1f'|format(result.base_models.xgboost.probs[1] * 100) }}%
+      </div>
+    </div>
+    {% endif %}
+
+    <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #e2e8f0;">
+      <span class="badge" style="background:#059669;color:#fff;">Ensemble</span>
+      <h5 style="margin:.4rem 0 .2rem 0;font-size:.95rem;">Soft Average Stacking</h5>
+      <div style="font-weight:600;color:#059669;">{{ result.predicted_stage }}</div>
+      <div class="text-sm" style="color:#64748b;">Confidence: {{ '%.1f'|format((result.confidence_score or 0) * 100) }}%</div>
+      <div class="text-sm" style="color:#94a3b8;margin-top:.2rem;">Combined Risk: {{ result.risk_score }}%</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Key Driving Factors -->
+{% if result.risk_factors %}
+<div class="card mb-4">
+  <h4 style="margin-bottom:.75rem;font-size:1rem;">Patient-Specific Risk Drivers</h4>
+  <p class="text-sm mb-3">Key biomarkers and symptoms that significantly elevate or modulate this patient's risk profile:</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:.75rem;">
+    {% for factor in result.risk_factors %}
+    <div style="background:#fff;padding:.85rem;border-radius:6px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-weight:600;color:#1e293b;">{{ factor.feature }}</div>
+        <div class="text-sm" style="color:#64748b;">Value: <strong>{{ factor.value }}</strong></div>
+      </div>
+      <span class="badge" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;">{{ factor.impact }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="panel-split">
+  <div class="card" style="background:linear-gradient(160deg,#fff,#eff6ff);">
+    <span class="chip chip-accent">Multi-Modal Integration</span>
+    <h3 style="margin-top:.85rem;">Isolated Decision Pathways</h3>
+    <p>This clinical evaluation is stored independently. You can inspect imaging or review longitudinal patient reports seamlessly.</p>
+    <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap;">
+      <a class="btn btn-secondary btn-sm" href="{{ url_for('web.ct') }}">Open CT Analysis</a>
+      <a class="btn btn-secondary btn-sm" href="{{ url_for('web.mri') }}">Open MRI Analysis</a>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="empty mt-5">
+  <div class="empty-ico">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+  </div>
+  <h3>No clinical assessment yet</h3>
+  <p>Fill out the clinical biomarkers form or click one of the sample presets to run the Stacking Ensemble.</p>
+</div>
+{% endif %}
+
+<script>
+const PRESETS = {
+  healthy: {
+    Age: 68, Gender: 1, Ethnicity: 0, EducationLevel: 2, BMI: 22.8,
+    Smoking: 0, AlcoholConsumption: 1.5, PhysicalActivity: 6.5, DietQuality: 8.0, SleepQuality: 8.5,
+    FamilyHistoryAlzheimers: 0, CardiovascularDisease: 0, Diabetes: 0, Depression: 0, HeadInjury: 0,
+    Hypertension: 0, SystolicBP: 118, DiastolicBP: 76,
+    CholesterolTotal: 185.0, CholesterolLDL: 95.0, CholesterolHDL: 65.0, CholesterolTriglycerides: 125.0,
+    MMSE: 28.5, FunctionalAssessment: 9.2, MemoryComplaints: 0, BehavioralProblems: 0,
+    ADL: 9.5, Confusion: 0, Disorientation: 0, PersonalityChanges: 0,
+    DifficultyCompletingTasks: 0, Forgetfulness: 0
+  },
+  impaired: {
+    Age: 78, Gender: 0, Ethnicity: 1, EducationLevel: 1, BMI: 27.4,
+    Smoking: 1, AlcoholConsumption: 5.0, PhysicalActivity: 1.5, DietQuality: 3.0, SleepQuality: 5.0,
+    FamilyHistoryAlzheimers: 1, CardiovascularDisease: 1, Diabetes: 1, Depression: 1, HeadInjury: 0,
+    Hypertension: 1, SystolicBP: 152, DiastolicBP: 94,
+    CholesterolTotal: 265.0, CholesterolLDL: 168.0, CholesterolHDL: 34.0, CholesterolTriglycerides: 280.0,
+    MMSE: 12.0, FunctionalAssessment: 3.2, MemoryComplaints: 1, BehavioralProblems: 1,
+    ADL: 3.0, Confusion: 1, Disorientation: 1, PersonalityChanges: 1,
+    DifficultyCompletingTasks: 1, Forgetfulness: 1
+  }
+};
+
+function loadSamplePreset(presetKey) {
+  const data = PRESETS[presetKey];
+  if (!data) return;
+  for (const [key, value] of Object.entries(data)) {
+    const el = document.getElementById(key);
+    if (el) {
+      el.value = value;
+      el.classList.add('highlight-flash');
+      setTimeout(() => el.classList.remove('highlight-flash'), 1000);
+    }
+  }
+}
+</script>
+
+<style>
+.highlight-flash {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  transition: background-color 0.5s ease;
+}
+</style>
+
+{% endblock %}

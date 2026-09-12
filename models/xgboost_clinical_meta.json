@@ -1,0 +1,198 @@
+{
+  "model_name": "xgboost_clinical",
+  "architecture": "xgboost_classifier",
+  "modality": "numerical clinical features",
+  "dataset": "rabieelkharoua/alzheimers-disease-dataset",
+  "class_names": [
+    "No Alzheimer",
+    "Alzheimer"
+  ],
+  "feature_columns": [
+    "Age",
+    "Gender",
+    "Ethnicity",
+    "EducationLevel",
+    "BMI",
+    "Smoking",
+    "AlcoholConsumption",
+    "PhysicalActivity",
+    "DietQuality",
+    "SleepQuality",
+    "FamilyHistoryAlzheimers",
+    "CardiovascularDisease",
+    "Diabetes",
+    "Depression",
+    "HeadInjury",
+    "Hypertension",
+    "SystolicBP",
+    "DiastolicBP",
+    "CholesterolTotal",
+    "CholesterolLDL",
+    "CholesterolHDL",
+    "CholesterolTriglycerides",
+    "MMSE",
+    "FunctionalAssessment",
+    "MemoryComplaints",
+    "BehavioralProblems",
+    "ADL",
+    "Confusion",
+    "Disorientation",
+    "PersonalityChanges",
+    "DifficultyCompletingTasks",
+    "Forgetfulness"
+  ],
+  "n_features": 32,
+  "split": {
+    "train": 1503,
+    "val": 323,
+    "test": 323,
+    "seed": 42
+  },
+  "hyperparameters": {
+    "n_estimators": 500,
+    "max_depth": 4,
+    "learning_rate": 0.05,
+    "subsample": 0.85,
+    "colsample_bytree": 0.85,
+    "min_child_weight": 3.0,
+    "reg_lambda": 1.0,
+    "reg_alpha": 0.1,
+    "scale_pos_weight": 1.8251879699248121,
+    "early_stopping_rounds": 40,
+    "best_iteration": 105
+  },
+  "feature_importance": [
+    {
+      "feature": "MemoryComplaints",
+      "importance": 0.12012703716754913
+    },
+    {
+      "feature": "FunctionalAssessment",
+      "importance": 0.11655878275632858
+    },
+    {
+      "feature": "ADL",
+      "importance": 0.10616309195756912
+    },
+    {
+      "feature": "BehavioralProblems",
+      "importance": 0.10091540217399597
+    },
+    {
+      "feature": "MMSE",
+      "importance": 0.09447254240512848
+    },
+    {
+      "feature": "Forgetfulness",
+      "importance": 0.02625345252454281
+    },
+    {
+      "feature": "Diabetes",
+      "importance": 0.026226859539747238
+    },
+    {
+      "feature": "FamilyHistoryAlzheimers",
+      "importance": 0.02567405253648758
+    },
+    {
+      "feature": "CholesterolTotal",
+      "importance": 0.021294675767421722
+    },
+    {
+      "feature": "CholesterolHDL",
+      "importance": 0.021009352058172226
+    },
+    {
+      "feature": "DifficultyCompletingTasks",
+      "importance": 0.020832126960158348
+    },
+    {
+      "feature": "SleepQuality",
+      "importance": 0.02057798020541668
+    },
+    {
+      "feature": "CholesterolLDL",
+      "importance": 0.02044709026813507
+    },
+    {
+      "feature": "Smoking",
+      "importance": 0.019815685227513313
+    },
+    {
+      "feature": "BMI",
+      "importance": 0.019062941893935204
+    },
+    {
+      "feature": "Hypertension",
+      "importance": 0.018877366557717323
+    },
+    {
+      "feature": "PhysicalActivity",
+      "importance": 0.018636509776115417
+    },
+    {
+      "feature": "DietQuality",
+      "importance": 0.01823452115058899
+    },
+    {
+      "feature": "Depression",
+      "importance": 0.017966846004128456
+    },
+    {
+      "feature": "CholesterolTriglycerides",
+      "importance": 0.01786811649799347
+    },
+    {
+      "feature": "Ethnicity",
+      "importance": 0.0177802424877882
+    },
+    {
+      "feature": "Age",
+      "importance": 0.017302973195910454
+    },
+    {
+      "feature": "DiastolicBP",
+      "importance": 0.01711990498006344
+    },
+    {
+      "feature": "SystolicBP",
+      "importance": 0.01682809554040432
+    },
+    {
+      "feature": "AlcoholConsumption",
+      "importance": 0.015459639951586723
+    },
+    {
+      "feature": "EducationLevel",
+      "importance": 0.015019918791949749
+    },
+    {
+      "feature": "Confusion",
+      "importance": 0.014531629160046577
+    },
+    {
+      "feature": "PersonalityChanges",
+      "importance": 0.013297629542648792
+    },
+    {
+      "feature": "CardiovascularDisease",
+      "importance": 0.0132931899279356
+    },
+    {
+      "feature": "Gender",
+      "importance": 0.00835234671831131
+    },
+    {
+      "feature": "Disorientation",
+      "importance": 0.0
+    },
+    {
+      "feature": "HeadInjury",
+      "importance": 0.0
+    }
+  ],
+  "best_val_acc": 0.9442724458204335,
+  "test_acc": 0.9628482972136223,
+  "model_file": "xgboost_clinical.joblib",
+  "booster_file": "xgboost_clinical.json"
+}

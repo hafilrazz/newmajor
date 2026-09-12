@@ -82,8 +82,11 @@ class PatientRepository:
         doc = self.patients.find_one({"_id": oid})
         return self._jsonify(doc) if doc else None
 
-    def get_prediction_history(self, patient_id: str) -> List[Dict[str, Any]]:
-        cursor = self.predictions.find({"patient_id": patient_id}).sort("created_at", -1)
+    def get_prediction_history(self, patient_id: str, modality: Optional[str] = None) -> List[Dict[str, Any]]:
+        query: Dict[str, Any] = {"patient_id": patient_id}
+        if modality:
+            query["modality"] = modality.lower().strip()
+        cursor = self.predictions.find(query).sort("created_at", -1)
         out: List[Dict[str, Any]] = []
         for item in cursor:
             item["_id"] = item.get("_id")
@@ -99,10 +102,13 @@ class PatientRepository:
         gradcam_image_base64: str,
         clinical_notes: str = "",
         patient_email: str = "",
+        modality: str = "mri",
+        extra_data: Optional[Dict[str, Any]] = None,
     ) -> str:
         doc = {
             "patient_id": patient_id,
             "patient_email": patient_email,
+            "modality": (modality or "mri").lower().strip(),
             "predicted_stage": predicted_stage,
             "confidence_score": confidence_score,
             "risk_score": risk_score,
@@ -110,6 +116,8 @@ class PatientRepository:
             "clinical_notes": clinical_notes,
             "created_at": _utcnow(),
         }
+        if extra_data:
+            doc["extra_data"] = self._jsonify(extra_data)
         res = self.predictions.insert_one(doc)
         return str(res.inserted_id)
 

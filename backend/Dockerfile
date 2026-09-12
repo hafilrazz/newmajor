@@ -1,7 +1,9 @@
-# NeuroLens — Flask Volt UI + REST API + PyTorch MRI model
+# NeuroLens — Clinical Multi-Modal Intelligence Platform
+# Dockerfile for Flask Volt UI + REST API + PyTorch (MRI, CT, Clinical Ensembles)
+#
 # Build from repo root:
 #   docker build -f backend/Dockerfile -t neurolens-web .
-# Or:
+# Or run with Docker Compose:
 #   docker compose up --build
 
 FROM python:3.11-slim-bookworm
@@ -11,19 +13,25 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONPATH=/app \
-    # Default runtime (compose / env overrides these)
     FLASK_PORT=5000 \
     FLASK_DEBUG=0 \
     FLASK_USE_RELOADER=0 \
     FLASK_SECRET_KEY=neurolens-docker-change-me \
     MODEL_PATH=/app/models/model.pth \
+    CT_MODEL_PATH=/app/models/ct_stacking_ensemble.pth \
+    CLINICAL_MODEL_PATH=/app/models/randomforest_clinical.joblib \
+    CLINICAL_XGB_PATH=/app/models/xgboost_clinical.json \
     MONGODB_URI=mongodb://mongo:27017 \
     MONGODB_DB=alzheimers \
     CORS_ORIGINS=http://localhost:5000,http://127.0.0.1:5000
 
 WORKDIR /app
 
-# System libs for Pillow / numpy / torch CPU runtime
+# Install system dependencies:
+# - curl: healthcheck endpoint polling
+# - ca-certificates: secure HTTPS asset retrieval
+# - libglib2.0-0, libgl1: image manipulation libraries
+# - libgomp1: OpenMP runtime (required for PyTorch and XGBoost)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
@@ -33,31 +41,30 @@ RUN apt-get update \
         libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps first (better layer caching)
+# Install Python dependencies first for optimal Docker layer caching
 COPY backend/requirements.txt /app/requirements.txt
 RUN python -m pip install --upgrade pip \
-    && pip install -r /app/requirements.txt
+    && pip install --extra-index-url https://download.pytorch.org/whl/cpu -r /app/requirements.txt
 
-# App package: routes, services, Volt UI (templates + static/css/volt.css)
+# Copy application source code
 COPY backend /app/backend
 
-# Trained weights (compose also bind-mounts ./models for updates without rebuild)
+# Copy all trained model weights (MRI ResNet-18, CT MobileNetV2/EfficientNet-B0/Stacking, Clinical RF/XGBoost)
 COPY models /app/models
 
-# Writable dirs for session image cache + local fallbacks
-# (runs as root so compose volume mounts work reliably on Windows/Linux)
+# Create writable data directories for isolated UI cache and offline storage
 RUN mkdir -p /app/data/ui_cache /app/data
 
 EXPOSE 5000
 
-HEALTHCHECK --interval=30s --timeout=8s --start-period=120s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=8s --start-period=60s --retries=3 \
     CMD curl -fsS http://127.0.0.1:5000/health >/dev/null || exit 1
 
-# One worker: model is loaded in-process; longer timeout for MRI inference
+# Production WSGI server (Gunicorn) with multithreading
 CMD ["gunicorn", \
      "--bind", "0.0.0.0:5000", \
      "--workers", "1", \
-     "--threads", "2", \
+     "--threads", "4", \
      "--timeout", "180", \
      "--graceful-timeout", "30", \
      "--access-logfile", "-", \

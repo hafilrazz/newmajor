@@ -1,22 +1,29 @@
-# NeuroLens — Clinical MRI Intelligence (Flask)
+# NeuroLens — Clinical Multi-Modal Intelligence Platform (Flask)
 
-Professional **Flask-only** Alzheimer’s MRI workspace with a **premium enterprise UI** (Linear/Stripe-style marketing + clinical OS dashboard) + full API.
+Professional **Flask-only** Alzheimer’s clinical decision-support workspace with an **enterprise Volt UI** + full REST API.
 
 ## Stack
 
-- **UI:** Flask + Jinja2 + custom CSS (no Streamlit)
-- **API:** Flask REST (`/api/*`)
-- **ML:** PyTorch ResNet-18 · Grad-CAM
-- **DB:** MongoDB (or in-memory mongomock fallback)
+- **UI:** Flask + Jinja2 + custom CSS (Volt design system)
+- **API:** Flask REST (`/api/predictions/*`, `/api/patients/*`, `/api/reports/*`, `/api/analytics/*`)
+- **ML / AI Models:**
+  - **MRI Intelligence:** PyTorch ResNet-18 (4-class) + Grad-CAM++ with multi-layer fusion
+  - **CT Stacking Ensemble:** MobileNetV2 + EfficientNet-B0 + Meta-Neural-Network (4-class) + Grad-CAM
+  - **Clinical Stacking Ensemble:** Random Forest (10 features) + XGBoost (32 features) with Soft Average consensus
+- **DB:** MongoDB (with automatic in-memory mongomock fallback & durable JSON backup)
 
 ## Features
 
 - Marketing home, about, contact
 - User registration / login (admin demo: `admin` / `123456`)
-- Dashboard with metrics & charts
-- Patient registration → MRI prediction → Grad-CAM → assessment → AI report
-- Patient history & population analytics
-- PDF download + optional email
+- Dashboard with cohort metrics & interactive charts
+- **Independent Clinical Pathways:**
+  - **MRI Prediction** (`/app/mri`) → Grad-CAM++ overlay → deletion faithfulness test
+  - **CT Scan Prediction** (`/app/ct`) → Stacking Ensemble consensus + CT Grad-CAM
+  - **Clinical Assessment** (`/app/clinical`) → 32 biomarkers → Random Forest + XGBoost soft average risk score
+- State isolation across modalities (zero cross-contamination)
+- Clinical assessment recording & longitudinal history tracking
+- Automated PDF report generation (ReportLab) + SMTP email dispatch
 
 ## installation and Run (local)
 
@@ -104,9 +111,12 @@ docker-compose.yml
 |----------|---------|
 | `POST /api/auth/login` | Login |
 | `POST /api/patients/register` | Register patient |
-| `POST /api/predictions` | MRI prediction |
-| `GET /api/analytics/*` | Analytics |
-| `POST /api/reports/generate` | Report |
+| `POST /api/predictions` | MRI prediction (ResNet-18) |
+| `POST /api/predictions/ct` | CT scan prediction (Stacking Ensemble) |
+| `POST /api/predictions/clinical` | Clinical assessment (RF + XGBoost Soft Average) |
+| `GET /api/analytics/*` | Analytics & Cohort Distribution |
+| `POST /api/reports/generate` | Generate PDF Clinical Report |
+| `POST /api/reports/email` | Email Clinical Report via SMTP |
 
 ## Clinical disclaimer
 

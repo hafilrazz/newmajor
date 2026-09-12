@@ -59,6 +59,9 @@ services:
       FLASK_USE_RELOADER: "0"
       FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-neurolens-docker-change-me}
       MODEL_PATH: /app/models/model.pth
+      CT_MODEL_PATH: /app/models/ct_stacking_ensemble.pth
+      CLINICAL_MODEL_PATH: /app/models/randomforest_clinical.joblib
+      CLINICAL_XGB_PATH: /app/models/xgboost_clinical.json
       MONGODB_URI: mongodb://mongo:27017
       MONGODB_DB: ${MONGODB_DB:-alzheimers}
       CORS_ORIGINS: http://localhost:5000,http://127.0.0.1:5000

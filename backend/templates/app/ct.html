@@ -1,0 +1,153 @@
+{% extends "layouts/app.html" %}
+{% from "components/ui.html" import workflow, metrics %}
+{% block title %}CT scan prediction{% endblock %}
+{% block topbar_title %}CT scan analysis{% endblock %}
+{% block topbar_sub %}CT Stacking Ensemble · MobileNetV2 + EfficientNet-B0 + Meta-NN{% endblock %}
+{% block content %}
+
+<div class="card mb-4" style="background:linear-gradient(135deg,rgba(59,130,246,0.06),rgba(99,102,241,0.04));border-color:rgba(59,130,246,0.2);">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+    <div>
+      <span class="badge" style="background:#2563eb;color:#fff;margin-bottom:.4rem;">Multi-Modal Modality 2</span>
+      <h3 style="margin:0.2rem 0;font-size:1.15rem;">Independent CT Scan Intelligence</h3>
+      <p class="text-sm" style="margin:0;color:var(--text-muted);">
+        Classify Alzheimer's cognitive stages from 2D brain CT slices using dual-backbone feature fusion and meta-learning.
+      </p>
+    </div>
+    <div>
+      <span class="chip chip-accent">Isolated CT Workspace</span>
+    </div>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  <div class="panel-split">
+    <div class="card">
+      <h3 style="margin-bottom:.3rem;">Patient context</h3>
+      <p class="text-sm">Bind this CT scan to a patient record.</p>
+      <div class="field">
+        <label for="patient_id">Patient ID</label>
+        <input class="control" id="patient_id" name="patient_id" value="{{ patient_id }}" required />
+      </div>
+      <div class="field">
+        <label for="patient_email">Patient email</label>
+        <input class="control" id="patient_email" name="patient_email" type="email" value="{{ patient_email }}" required />
+      </div>
+      <div class="field">
+        <label for="clinical_notes">Clinical notes</label>
+        <textarea class="textarea" id="clinical_notes" name="clinical_notes" placeholder="CT imaging indications or radiologist notes…"></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:.3rem;">CT scan slice</h3>
+      <p class="text-sm">PNG or JPEG exported brain CT scan slice (axial).</p>
+      <div class="field">
+        <input type="file" name="ct_file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" data-preview-target="ctPreview" required />
+        <div class="hint">Upload a 2D axial brain CT scan slice.</div>
+      </div>
+      <div class="img-frame" style="background:#0f172a;">
+        <img id="ctPreview" hidden alt="CT preview" style="max-height:280px;margin:0 auto;padding:.75rem;" />
+      </div>
+      <p id="ctPreviewMeta" class="text-sm mt-2" hidden></p>
+    </div>
+  </div>
+  <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">
+    Run CT Stacking Ensemble prediction
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </button>
+</form>
+
+{% if result %}
+<hr class="divider" />
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+  <div>
+    <h3>Latest CT Ensemble Analysis</h3>
+    <p class="text-sm">Stacking Meta-Neural-Network output combining MobileNetV2 + EfficientNet-B0.</p>
+  </div>
+  <span class="badge" style="background:#10b981;color:#fff;">CT Modality</span>
+</div>
+
+{{ metrics([
+  ('Ensemble Predicted Stage', result.predicted_stage or 'Unavailable'),
+  ('Ensemble Confidence', '%.1f%%'|format((result.confidence_score or 0) * 100)),
+  ('CT Risk score', (result.risk_score|string) + '/100')
+]) }}
+
+<!-- Base Models Comparison -->
+{% if result.base_models %}
+<div class="card mb-4" style="background:#f8fafc;border-color:#e2e8f0;">
+  <h4 style="margin-bottom:.75rem;font-size:1rem;">Base Models Consensus</h4>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;">
+    {% if result.base_models.mobilenet_v2 %}
+    <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #e2e8f0;">
+      <span class="badge" style="background:#6366f1;color:#fff;">Base Model 1</span>
+      <h5 style="margin:.4rem 0 .2rem 0;font-size:.95rem;">MobileNetV2</h5>
+      <div style="font-weight:600;color:#1e293b;">{{ result.base_models.mobilenet_v2.predicted_stage }}</div>
+      <div class="text-sm" style="color:#64748b;">Confidence: {{ '%.1f'|format((result.base_models.mobilenet_v2.confidence or 0) * 100) }}%</div>
+    </div>
+    {% endif %}
+
+    {% if result.base_models.efficientnet_b0 %}
+    <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #e2e8f0;">
+      <span class="badge" style="background:#0284c7;color:#fff;">Base Model 2</span>
+      <h5 style="margin:.4rem 0 .2rem 0;font-size:.95rem;">EfficientNet-B0</h5>
+      <div style="font-weight:600;color:#1e293b;">{{ result.base_models.efficientnet_b0.predicted_stage }}</div>
+      <div class="text-sm" style="color:#64748b;">Confidence: {{ '%.1f'|format((result.base_models.efficientnet_b0.confidence or 0) * 100) }}%</div>
+    </div>
+    {% endif %}
+
+    <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #e2e8f0;">
+      <span class="badge" style="background:#10b981;color:#fff;">Meta-Learner</span>
+      <h5 style="margin:.4rem 0 .2rem 0;font-size:.95rem;">Stacking Meta-NN</h5>
+      <div style="font-weight:600;color:#059669;">{{ result.predicted_stage }}</div>
+      <div class="text-sm" style="color:#64748b;">Architecture: 8 &rarr; 32 &rarr; 16 &rarr; 4</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Class Probabilities -->
+{% if class_probs %}
+<div class="card" style="margin-bottom:1.25rem;">
+  <h3 style="margin-bottom:.9rem;">Ensemble Class Probabilities</h3>
+  {% for name, p in class_probs %}
+  <div class="prob">
+    <div class="prob-n">{{ name }}</div>
+    <div class="prob-t"><div class="prob-f" style="width:{{ (p * 100)|round(1) }}%;"></div></div>
+    <div class="prob-p">{{ '%.1f'|format(p * 100) }}%</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if result.gradcam_image_base64 %}
+<div class="panel-split">
+  <div class="card">
+    <h3 style="margin-bottom:.85rem;">CT Explainability (Grad-CAM)</h3>
+    <div class="img-frame" style="background:#0b132b;">
+      <img src="data:image/png;base64,{{ result.gradcam_image_base64 }}" alt="CT Grad-CAM" />
+    </div>
+  </div>
+  <div class="card" style="background:linear-gradient(160deg,#fff,#f0fdf4);">
+    <span class="chip chip-accent">Clinical Pathway</span>
+    <h3 style="margin-top:.85rem;">Multi-Modal Decision Support</h3>
+    <p>CT scan evaluation is recorded independently. You can now cross-reference with Clinical Features or MRI scan without overwriting this session.</p>
+    <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap;">
+      <a class="btn btn-secondary btn-sm" href="{{ url_for('web.clinical') }}">Perform Clinical Analysis</a>
+      <a class="btn btn-secondary btn-sm" href="{{ url_for('web.mri') }}">View MRI Analysis</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty mt-5">
+  <div class="empty-ico">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/><circle cx="12" cy="12" r="4"/></svg>
+  </div>
+  <h3>No CT prediction yet</h3>
+  <p>Select or enter a patient ID, upload an axial brain CT scan slice, and run the Stacking Ensemble.</p>
+</div>
+{% endif %}
+
+{% endblock %}

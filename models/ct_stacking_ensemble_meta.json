@@ -1,0 +1,34 @@
+{
+  "model_name": "ct_stacking_ensemble",
+  "architecture": "stacking_meta_nn",
+  "base_models": {
+    "mobilenet_v2": "C:\\model\\outputs\\mobilenetv2_ct.pth",
+    "efficientnet_b0": "C:\\model\\outputs\\efficientnet_b0_ct.pth"
+  },
+  "meta_input_dim": 8,
+  "meta_input_description": "concat([MobileNetV2 softmax probs (4), EfficientNetB0 softmax probs (4)])",
+  "modality": "CT scan",
+  "dataset_name": "Alzheimer CT scan 4-class",
+  "num_classes": 4,
+  "class_names": [
+    "Mild Impairment",
+    "Moderate Impairment",
+    "No Impairment",
+    "Very Mild Impairment"
+  ],
+  "img_size": 224,
+  "normalize_mean": [
+    0.485,
+    0.456,
+    0.406
+  ],
+  "normalize_std": [
+    0.229,
+    0.224,
+    0.225
+  ],
+  "seed": 42,
+  "meta_train_on": "val",
+  "best_meta_val_acc": 0.9896373056994818,
+  "test_acc": 0.9770833333333333
+}
